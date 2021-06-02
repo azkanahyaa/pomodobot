@@ -12,15 +12,15 @@ async function awaitReminderMessage(msg, serverID) {
 		*/
 
 		if (serverConfig.length < 1) return console.log('baaa')
-		
+
 		if (serverConfig.setremindChannel.id === msg.channel.id) {
 			const timeInput = msg.content.split('--')[1]
-			let timeValue = eval(timeInput.slice(0, timeInput.length - 3))
-			if (timeInput.endsWith('sec') || timeInput.endsWith('s')) {
+			let timeValue = eval(timeInput.slice(0, timeInput.length - 1))
+			if (timeInput.endsWith('s')) {
 				timeValue *= 1000
-			} else if (timeInput.endsWith('min') || timeInput.endsWith('m')) {
+			} else if (timeInput.endsWith('m')) {
 				timeValue *= 1000 * 60
-			} else if (timeInput.endsWith('hou') || timeInput.endsWith('h')) {
+			} else if (timeInput.endsWith('h')) {
 				timeValue *= 1000 *60 * 60
 			}
 			console.log(timeInput, '\n', timeValue)
