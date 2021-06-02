@@ -11,10 +11,12 @@ module.exports = {
 
 		console.log(`${end}\n${(end-now)/(1000*60)}`)
 		*/
-		deleteDB('reminder')
+		//deleteDB('reminder')
 		/*
 		const channel = msg.client.channels.fetch(msg.channel.id)
 		console.log(channel)
 		*/
+		console.log(msg.createdAt)
+		console.log(new Date().getTime())
 	}
 }

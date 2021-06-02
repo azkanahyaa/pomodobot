@@ -5,28 +5,28 @@ async function awaitReminderMessage(msg, serverID) {
 	try {
 		let serverConfig = await getRemindDB(serverID)
 
-		/*
-				setremindChannel = setremindChannel
-				remindChannel = remindChannel
-				queue
-		*/
-
 		if (serverConfig.length < 1) return console.log('baaa')
 
 		if (serverConfig.setremindChannel.id === msg.channel.id) {
 			const timeInput = msg.content.split('--')[1]
-			let timeValue = eval(timeInput.slice(0, timeInput.length - 1))
-			if (timeInput.endsWith('s')) {
-				timeValue *= 1000
-			} else if (timeInput.endsWith('m')) {
-				timeValue *= 1000 * 60
-			} else if (timeInput.endsWith('h')) {
-				timeValue *= 1000 *60 * 60
-			}
+			let timeValue = 0
+
+			// 3h 25m 10s
+
+			const hoursInput = timeInput.split('h')
+			let minutesInput = timeInput.split('m')
+			if (hoursInput.length > 1) minutesInput = hoursInput[1].split('m')
+			let secondsInput = timeInput.split('s')
+			if (minutesInput.length > 1) secondsInput = secondsInput[1].split('s')
+
+			if (hoursInput.length > 1) timeValue += eval(hoursInput[0]) * 1000 * 60 * 60
+			if (minutesInput.length > 1) timeValue += eval(minutesInput[0]) * 1000 * 60
+			if (secondsInput.length > 1) timeValue += eval(secondsInput[0]) * 1000
+			
 			console.log(timeInput, '\n', timeValue)
 
 			const endTime = new Date().getTime() + timeValue
-			if (!endTime) return
+			if (!endTime || timeValue === 0) return
 			let reminder = {
 				time: endTime,
 				user: msg.author.id,
