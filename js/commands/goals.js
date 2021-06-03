@@ -21,22 +21,7 @@ module.exports = {
 				msg.channel.send(err)
 			})
 		} else {
-			const filter = m => m.author.id === msg.author.id
-			msg.channel.send('Masukkan Target Jangka Panjang Anda')
-			msg.channel.awaitMessages(filter, { max: 1 })
-			 .then(collected => {
-				 const goalsInput = collected.first().content
-				 collected.first().reply('Tambahkan Pesan ini ke dalam goals anda?')
-				  .then(m => {
-						m.react('✅')
-						const filter = (reaction, user) => reaction.emoji.name === '✅' && user.id === m.author.id
-						m.awaitReactions(filter, { max: 1 })
-							.then(() => {
-								updateProfile(msg.author.id, goalsInput)
-								 .then(response => msg.channel.send(response))
-							})
-					})
-			 })
+			
 		}
 	}
 }

@@ -15,9 +15,9 @@ async function awaitReminderMessage(msg, serverID) {
 
 			const hoursInput = timeInput.split('h')
 			let minutesInput = timeInput.split('m')
-			if (hoursInput.length > 1) minutesInput = hoursInput[1].split('m')
+			if (hoursInput.length > 1 && minutesInput.length > 1) minutesInput = hoursInput[1].split('m')
 			let secondsInput = timeInput.split('s')
-			if (minutesInput.length > 1) secondsInput = secondsInput[1].split('s')
+			if (minutesInput.length > 1 && secondsInput.length > 1) secondsInput = secondsInput[1].split('s')
 
 			if (hoursInput.length > 1) timeValue += eval(hoursInput[0]) * 1000 * 60 * 60
 			if (minutesInput.length > 1) timeValue += eval(minutesInput[0]) * 1000 * 60

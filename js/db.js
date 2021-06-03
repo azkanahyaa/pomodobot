@@ -85,5 +85,45 @@ function updateRemindDB(key, data) {
 	})
 }
 
+function getTodoDB(key) {
+	return new Promise((resolve, reject) => {
+		checkDB('todo').then(users => {
+			const todoMap = new Map(users)
+			if (users.length < 1) {
+				reject('anda belum mengatur Todo List')
+				return
+			}
 
-module.exports = { checkDB, getProfile, updateProfile, getRemindDB, updateRemindDB, deleteDB }
+			resolve(todoMap.get(key))
+		})
+	})
+}
+
+function updateTodoDB(key, data) {
+  return new Promise((resolve, reject) => {
+		checkDB('todo').then(users => {
+			const todoMap = new Map(users)
+			
+			if (users.length < 1) {
+				db.set('todo', [ [key, data] ])
+				resolve('Data berhasil ditambahkan')
+				return
+			}
+
+			todoMap.set(key, data)
+			db.set('todo', Array.from(todoMap))
+			resolve('Data berhasl ditambahkan')
+		})
+	})
+}
+
+module.exports = { 
+	checkDB,
+	getProfile,
+	updateProfile,
+	getRemindDB,
+	updateRemindDB,
+	getTodoDB,
+	updateTodoDB,
+	deleteDB
+}
