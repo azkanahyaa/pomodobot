@@ -82,7 +82,7 @@ async function addTodoList(msg, todoList = []) {
 		.setColor('#347C7C')
 		.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
 		.setTitle(`${userNickname.toUpperCase()} DAILY TO DO LIST`)
-		.setDescription(`▫️ \`${newTodoArray.map(item => item.replace(' -at ', ' pada ')).join('\`\n▫️ ')})
+		.setDescription(`▫️ \`${newTodoArray.map(item => item.replace(' -at ', ' pada ')).join('\`\n▫️ ')}`)
 		.setFooter('gunakan p!set todo untuk mengedit list')
 	msg.channel.send(todoEmbed)
 	updateTodoDB(msg.author.id, todoData)
