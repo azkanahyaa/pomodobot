@@ -25,8 +25,13 @@ module.exports = {
 				console.log(collected.first().emoji.name)
 				switch (collected.first().emoji.name) {
 					case '➕':
-					m.delete()
-					addTodoList(msg)
+						getTodoDB(msg.author.id).then(list => {
+							m.delete()
+							if (!list) return addTodoList(msg)
+
+							const todoList = list.map(item => item.join(' pada '))
+							addTodoList(msg, todoList)
+						})
 					return
 					case '🗑️':
 					console.log('delete')
@@ -47,6 +52,7 @@ module.exports = {
 }
 
 async function addTodoList(msg, todoList = []) {
+	
 	const todoArray = todoList
 
 	console.log('separator')
@@ -70,13 +76,15 @@ async function addTodoList(msg, todoList = []) {
 		return
 	}
 
-	const todoData = newTodoArray.map(item => item.split(' -at '))
+	const todoData = newTodoArray.map(item =>  item.split(' -at '))
+	const userNickname = msg.guild.members.cache.get(msg.author.id).nickname
 	const todoEmbed = new MessageEmbed()
 		.setColor('#347C7C')
 		.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
-		.setTitle(`${userNickname} Daily To Do List`)
-		.setDescription(`- ${todoData.join('\n- ')}`)
+		.setTitle(`${userNickname.toUpperCase()} DAILY TO DO LIST`)
+		.setDescription(`▫️ \`${newTodoArray.map(item => item.replace(' -at ', ' pada ')).join('\`\n▫️ ')})
 		.setFooter('gunakan p!set todo untuk mengedit list')
+	msg.channel.send(todoEmbed)
 	updateTodoDB(msg.author.id, todoData)
 }
 

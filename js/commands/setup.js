@@ -13,6 +13,7 @@ module.exports = {
 	description: 'Mengatur konfigurasi bot terhadap akun/server kamu',
 	aliases: [ 'set', 'config', 'settings' ],
   execute(msg, args) {
+		if (args.length < 1) return
 		const subArgs = args
 		const subCommand = subArgs.shift().toLowerCase()
 
