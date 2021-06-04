@@ -123,7 +123,7 @@ async function removeTodoList(msg, todoList) {
 	}
 
 	for (const num of inputArray) {
-		if (num > inputArray.length) {
+		if (num > newTodoData.length - 1) {
 			msg.channel.send('masukkan nomor to do list dengan benar')
 			removeTodoList(msg, newTodoData)
 			return
