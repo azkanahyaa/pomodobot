@@ -1,17 +1,6 @@
 const { MessageEmbed } = require('discord.js')
 const { getTodoDB, updateTodoDB } = require('../../db')
 
-const defaultTemp = {
-	default: '🔸',
-	onGoing: '🔹',
-	completed: '✅',
-	uncompleted: '📛'
-}
-/*
-
-
-
-*/
 module.exports = {
 	name: 'todo',
 	execute(msg, args) {

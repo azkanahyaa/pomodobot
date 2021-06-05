@@ -117,6 +117,39 @@ function updateTodoDB(key, data) {
 	})
 }
 
+function getCompletionDB(key) {
+	return new Promise((resolve, reject) => {
+		checkDB('completions').then(users => {
+			const completionsMap = new Map(users)
+			if (users.length < 1) {
+				resolve([ ])
+				return
+			}
+
+			resolve(completionsMap.get(key))
+			
+		})
+	})
+}
+
+function updateCompletionDB(key, data) {
+  return new Promise((resolve, reject) => {
+		checkDB('completions').then(users => {
+			const completionsMap = new Map(users)
+			
+			if (users.length < 1) {
+				db.set('completions', [ [key, data] ])
+				resolve('Data berhasil ditambahkan')
+				return
+			}
+
+			completionsMap.set(key, data)
+			db.set('completions', Array.from(completionsMap))
+			resolve('Data berhasl ditambahkan')
+		})
+	})
+}
+
 module.exports = { 
 	checkDB,
 	getProfile,
@@ -125,5 +158,7 @@ module.exports = {
 	updateRemindDB,
 	getTodoDB,
 	updateTodoDB,
-	deleteDB
+	deleteDB,
+	getCompletionDB,
+	updateCompletionDB
 }

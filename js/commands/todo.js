@@ -9,6 +9,14 @@ module.exports = {
 		const userNickname = msg.guild.members.cache.get(msg.author.id).nickname
 		const todoData = await getTodoDB(msg.author.id)
 		if (todoData.length < 1) return msg.channel.send('todo list kamu kosong nih. Silahkan gunakan `p!setup todo` untuk mengatur list kamu')
+
+		const defaultTemp = {
+			default: '🔸',
+			onGoing: '🔹',
+			completed: '✅',
+			uncompleted: '📛'
+		}
+
 		const embedDesc = todoData.map((item, index) => `${index + 1}. ${item}`).join('\n')
 
 		const todoEmbed = new MessageEmbed()
