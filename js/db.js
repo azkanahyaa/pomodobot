@@ -90,7 +90,7 @@ function getTodoDB(key) {
 		checkDB('todo').then(users => {
 			const todoMap = new Map(users)
 			if (users.length < 1) {
-				reject('anda belum mengatur Todo List')
+				resolve([ ])
 				return
 			}
 

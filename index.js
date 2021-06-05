@@ -6,7 +6,7 @@ const { awaitReminderMessage, startInterval } = require('./js/await/reminder.js'
 const client = new Discord.Client()
 client.commands = new Discord.Collection()
 
-let prefix = 'p!'
+let prefix = ',p'
 
 
 const commandFiles = fs.readdirSync('./js/commands').filter(file => file.endsWith('.js'));

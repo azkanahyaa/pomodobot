@@ -8,7 +8,7 @@ async function awaitReminderMessage(msg, serverID) {
 		if (serverConfig.length < 1) return console.log('baaa')
 
 		if (serverConfig.setremindChannel.id === msg.channel.id) {
-			const timeInput = msg.content.split('--')[1]
+			const timeInput = msg.content.split(' in ')[1]
 			let timeValue = 0
 
 			// 3h 25m 10s
@@ -30,7 +30,7 @@ async function awaitReminderMessage(msg, serverID) {
 			let reminder = {
 				time: endTime,
 				user: msg.author.id,
-				desc: msg.content.split('--')[0]
+				desc: msg.content.split(' in ')[0]
 			}
 			serverConfig.queue.push(reminder)
 			serverConfig.queue.sort((a, b) => a.time - b.time)
