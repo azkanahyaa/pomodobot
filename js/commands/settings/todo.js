@@ -1,11 +1,14 @@
 const { MessageEmbed } = require('discord.js')
-const { getTodoDB, updateTodoDB } = require('../../db')
+const { getTodoDB, updateTodoDB, updateCompletionDB } = require('../../db')
 
 module.exports = {
 	name: 'todo',
 	execute(msg, args) {
+		const hours = new Date().getHours()
+		const minutes = new Date().getMinutes()
+		if (hours === 15) return msg.channel.send(`Sedang mereset semua to do list. Kamu dapat mengatur to do listmu lagi setelah ${61 - minutes} menit lagi`)
 		const userNickname = msg.guild.members.cache.get(msg.author.id).nickname
-		const settingsDesc = 'Tekan reaction di bawah untuk mengatur to do list anda:\n\n➕ = `tambah list`\n🗑️ = `hapus beberapa list`\n📝 = `mengedit list`\n📦 = `template todolist`\n✅ = `selesai`'
+		const settingsDesc = 'Tekan reaction di bawah untuk mengatur to do list anda:\n\n➕ = `tambah list`\n🗑️ = `hapus beberapa list`\n📝 = `mengedit list`\n✅ = `selesai`'
 		const settingsEmbed = new MessageEmbed()
 			.setColor('#347C7C')
 			.setTitle(`${userNickname} Daily To Do List`)
@@ -60,8 +63,8 @@ module.exports = {
 								.setColor('#347C7C')
 								.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
 								.setTitle(`DAILY TO DO LIST`)
-								.setDescription(`▫️ \`${list.map(item => item.join(' pada ')).join('\`\n▫️ \`')}\``)
-								.setFooter('gunakan p!set todo untuk mengedit list')
+								.setDescription(`▫️ \`${list.join('\`\n▫️ \`')}\``)
+								.setFooter('gunakan ,p todo untuk melihat kembali list')
 							msg.channel.send(todoEmbed)
 						})
 						return
@@ -91,10 +94,11 @@ async function addTodoList(msg, todoList = []) {
 	const todoInput = input1.split('\n')
 	const newTodoArray = [ ...todoArray, ...todoInput]
 
+
 	const qTxt2 = new MessageEmbed()
 		.setColor('#347C7C')
 		.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
-		.setDescription(`\n▫️ ${newTodoArray.join('\n▫️ ')}\n\n\`\`\`json\nApakah Kamu ingin menambah to do list lagi? "(Ketik: Ya/Tidak)"\n\`\`\``)
+		.setDescription(`\n▫️ ${newTodoArray.join('\n▫️ ')}\n\n> Apakah Kamu ingin menambah to do list lagi? (Ketik: Ya/Tidak)`)
 
 	const input2 = await awaitSingleMessage(msg, filterCondition, qTxt2)
 	const isAddAgain = input2.toLowerCase() === 'ya'
@@ -104,6 +108,8 @@ async function addTodoList(msg, todoList = []) {
 		return
 	}
 
+	const completionData = newTodoArray.map(() => 0 )
+
 	let todoEmbed = new MessageEmbed()
 		.setColor('#347C7C')
 		.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
@@ -111,6 +117,7 @@ async function addTodoList(msg, todoList = []) {
 		.setDescription(`▫️ ${newTodoArray.join('\n▫️ ')}`)
 		.setFooter('gunakan `,p set todo` untuk mengedit list')
 	msg.channel.send(todoEmbed)
+	updateCompletionDB(msg.author.id, completionData)
 	updateTodoDB(msg.author.id, newTodoArray)
 }
 
@@ -169,7 +176,10 @@ async function removeTodoList(msg, todoList) {
 		return
 	}
 
+	const completionData = newTodoData.map(() => 0)
+
 	msg.channel.send('**Selesai!** Gunakan `,p todo` untuk melihat list dan gunakan `p!set todo` untuk kembali mengatur list')
+	updateCompletionDB(msg.author.id, completionData)
 	updateTodoDB(msg.author.id, newTodoData)
 }
 
@@ -205,6 +215,7 @@ async function editTodoList(msg, todoList) {
 	const inputItem = await awaitSingleMessage(msg, filterOneLine, qTxt2)
 
 	newTodoData[itemNum] = inputItem
+	const completionData = newTodoData.map(() => 0)
 
 	const qTxt3 = new MessageEmbed()
 		.setColor('#347C7C')
@@ -220,15 +231,18 @@ async function editTodoList(msg, todoList) {
 	}
 
 	msg.channel.send('**Selesai!** Gunakan `p!todo` untuk melihat list dan gunakan `p!set todo` untuk kembali mengatur list')
+	updateCompletionDB(msg.author.id, completionData)
 	updateTodoDB(msg.author.id, newTodoData)
 }
 
 async function awaitSingleMessage(msg, filter, questionTxt) {
+	msg.client.isProcessOn.set(msg.author.id, true)
 	const questionMsg = await msg.channel.send(questionTxt)
 	const input = await msg.channel.awaitMessages(filter, { max: 1 }).then(collected => Promise.resolve(collected.first()))
 
 
 	questionMsg.delete()
+	msg.client.isProcessOn.set(msg.author.id, false)
 	if (input.content.toLowerCase() === 'exit') return msg.channel.send('**Proses Dihentikan**')
 	input.delete()
 	return Promise.resolve(input.content)

@@ -18,37 +18,14 @@ function deleteDB(key) {
 	db.delete(key)
 }
 
-function getProfile(key) {
-	return new Promise((resolve, reject) => {
-		checkDB('profiles').then(profiles => {
-			const profilesMap = new Map(profiles)
-			if (profiles.length < 1) {
-				reject('anda belum mengatur Goals')
-				return
-			}
+function removeDBItem(key, dataKey) {
+	db.get(key).then(data => {
+		const dataMap = new Map(data)
 
-			resolve(profilesMap.get(key))
-			
-		})
-	})
-}
+		if (!dataMap.has(dataKey)) return
 
-function updateProfile(key, data) {
-  return new Promise((resolve, reject) => {
-		checkDB('profiles').then(profiles => {
-			const profilesMap = new Map(profiles)
-			console.log(profiles, profilesMap)
-			
-			if (profiles.length < 1) {
-				db.set('profiles', [ [key, data] ])
-				resolve('Data berhasil ditambahkan')
-				return
-			}
-
-			profilesMap.set(key, data)
-			db.set('profiles', Array.from(profilesMap))
-			resolve('Data berhasl ditambahkan')
-		})
+		dataMap.delete(dataKey)
+		db.set(key, Array.from(dataMap))
 	})
 }
 
@@ -139,26 +116,95 @@ function updateCompletionDB(key, data) {
 			
 			if (users.length < 1) {
 				db.set('completions', [ [key, data] ])
-				resolve('Data berhasil ditambahkan')
+				resolve('Data berhasil diubah')
 				return
 			}
 
 			completionsMap.set(key, data)
 			db.set('completions', Array.from(completionsMap))
-			resolve('Data berhasl ditambahkan')
+			resolve('Data berhasl diubah')
+		})
+	})
+}
+
+function getTemplateDB(key) {
+	return new Promise((resolve, reject) => {
+		checkDB('templates').then(servers => {
+			const templatesMap = new Map(servers)
+			if (servers.length < 1) {
+				resolve([ ])
+				return
+			}
+
+			resolve(templatesMap.get(key))
+			
+		})
+	})
+}
+
+function updateTemplateDB(key, data) {
+  return new Promise((resolve, reject) => {
+		checkDB('templates').then(servers => {
+			const templatesMap = new Map(servers)
+			
+			if (servers.length < 1) {
+				db.set('templates', [ [key, data] ])
+				resolve('Data berhasil diubah')
+				return
+			}
+
+			templatesMap.set(key, data)
+			db.set('templates', Array.from(templatesMap))
+			resolve('Data berhasl diubah')
+		})
+	})
+}
+
+function getUserTemplateDB(key) {
+	return new Promise((resolve, reject) => {
+		checkDB('userTemp').then(users => {
+			const usersMap = new Map(users)
+			if (users.length < 1) {
+				resolve([ ])
+				return
+			}
+
+			resolve(usersMap.get(key))
+			
+		})
+	})
+}
+
+function updateUserTemplateDB(key, data) {
+  return new Promise((resolve, reject) => {
+		checkDB('userTemp').then(users => {
+			const usersMap = new Map(users)
+			
+			if (users.length < 1) {
+				db.set('userTemp', [ [key, data] ])
+				resolve('Data berhasil diubah')
+				return
+			}
+
+			usersMap.set(key, data)
+			db.set('userTemp', Array.from(usersMap))
+			resolve('Data berhasl diubah')
 		})
 	})
 }
 
 module.exports = { 
 	checkDB,
-	getProfile,
-	updateProfile,
 	getRemindDB,
 	updateRemindDB,
 	getTodoDB,
 	updateTodoDB,
 	deleteDB,
+	removeDBItem,
 	getCompletionDB,
-	updateCompletionDB
+	updateCompletionDB,
+	getTemplateDB,
+	updateTemplateDB,
+	getUserTemplateDB,
+	updateUserTemplateDB
 }

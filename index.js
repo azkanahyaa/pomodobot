@@ -1,10 +1,12 @@
 const fs = require('fs')
 const onlineBot = require("./server")
 const Discord = require('discord.js')
-const { awaitReminderMessage, startInterval } = require('./js/await/reminder.js')
+const { awaitReminderMessage, reminderInterval } = require('./js/await/reminder')
+const { todoInterval } = require('./js/await/todo')
 
 const client = new Discord.Client()
 client.commands = new Discord.Collection()
+client.isProcessOn = new Discord.Collection()
 
 let prefix = ',p'
 
@@ -19,15 +21,19 @@ for (const file of commandFiles) {
 client.on('ready', () => {
   console.log('Login success')
   client.user.setActivity(`Azka Mengoding`, { type: 'WATCHING' })
-	startInterval(client)
+	reminderInterval(client)
+	todoInterval(client)
 })
 
 client.on('message', msg => {
 
 	if (msg.author.bot) return
 
+	let isProcessOn = client.isProcessOn.get(msg.author.id)
   const content = msg.content
 	awaitReminderMessage(msg, msg.guild.id)
+
+	if (!isProcessOn) isProcessOn = false
 
   if (!content.toLowerCase().startsWith(prefix)) return
 

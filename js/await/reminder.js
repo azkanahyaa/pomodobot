@@ -47,7 +47,7 @@ async function awaitReminderMessage(msg, serverID) {
 }
 
 
-function startInterval(client) {
+function reminderInterval(client) {
 	async function checkQueue(serverID, config, now) {
 		if (config.queue.length < 1) return
 
@@ -56,7 +56,7 @@ function startInterval(client) {
 
 		if (reminder.time - now > 0) return
 
-		const m = await channel.send(`Hallo <@${reminder.user}>, sudah waktunya untuk **${reminder.desc}** nih. Semangat ya ><.`)
+		const m = await channel.send(`Hallo <@${reminder.user}>, sudah waktunya untuk **${reminder.desc}** nih <:me:850385320230780949>. Jangan lupa atur reminder untuk to do listmu selanjutnya ya.`)
 		m.react('👌')
 		config.queue.splice(0, 1)
 
@@ -80,4 +80,4 @@ function startInterval(client) {
 }
 
 
-module.exports = { awaitReminderMessage, startInterval }
+module.exports = { awaitReminderMessage, reminderInterval }
