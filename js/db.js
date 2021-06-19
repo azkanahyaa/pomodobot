@@ -193,6 +193,39 @@ function updateUserTemplateDB(key, data) {
 	})
 }
 
+function getPomodDB(key) {
+	return new Promise((resolve, reject) => {
+		checkDB('pomodoro').then(servers => {
+			const serversMap = new Map(servers)
+			if (servers.length < 1) {
+				resolve([ ])
+				return
+			}
+
+			resolve(serversMap.get(key))
+			
+		})
+	})
+}
+
+function updatePomodDB(key, data) {
+  return new Promise((resolve, reject) => {
+		checkDB('pomodoro').then(servers => {
+			const settingsMap = new Map(servers)
+			
+			if (servers.length < 1) {
+				db.set('pomodoro', [ [key, data] ])
+				resolve('Data berhasil diubah')
+				return
+			}
+
+			settingsMap.set(key, data)
+			db.set('pomodoro', Array.from(settingsMap))
+			resolve('Data berhasl diubah')
+		})
+	})
+}
+
 module.exports = { 
 	checkDB,
 	getRemindDB,
@@ -206,5 +239,7 @@ module.exports = {
 	getTemplateDB,
 	updateTemplateDB,
 	getUserTemplateDB,
-	updateUserTemplateDB
+	updateUserTemplateDB,
+	getPomodDB,
+	updatePomodDB
 }

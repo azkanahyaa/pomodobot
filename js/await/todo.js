@@ -33,12 +33,12 @@ function todoInterval(client) {
 	let checkTime = setInterval(() => {
 		const hours = new Date().getHours()
 		const minutes = new Date().getMinutes()
-		if (hours === 16 && minutes === 0) {
+		if (hours === 15 && minutes === 30) {
 			deleteDB('todo')
 			deleteDB('completions')
 		} 
 		
-		if (hours !== 15) return
+		if (hours !== 15 || (hours === 15 && minutes > 30)) return
 
 		checkDB('todo').then(users => {
 			const todoMap = new Map(users)

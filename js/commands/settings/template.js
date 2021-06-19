@@ -5,10 +5,9 @@ const { customAlphabet } = require('nanoid')
 module.exports = {
 	name: 'template',
   async execute(msg, args) {
-		if (msg.author.id !== msg.guild.ownerID) return msg.channel.send('hanya owner server yang dapat mengatur template server')
 
 		const guildName = msg.guild.name
-		const settingsDesc = 'Tekan reaction di bawah untuk mengatur template To Do List server anda:\n\n➕ = `tambah template baru`\n🗑️ = `hapus beberapa template`\n📝 = `mengedit template yang ada`\n✅ = `selesai`'
+		const settingsDesc = 'Tekan reaction di bawah untuk mengatur template To Do List server anda:\n\n➕ = `tambah template baru`\n🗑️ = `menghapus template`\n📝 = `mengedit template yang ada`\n✅ = `selesai`'
 		const settingsEmbed = new MessageEmbed()
 			.setColor('#347C7C')
 			.setTitle(`${guildName} Daily To Do List`)
@@ -169,15 +168,15 @@ async function awaitTemplateReaction(msg, templates, index, embed, option) {
 	switch (reactRes) {
 		case '⬅️':
 			newIndex--
-			if (index < 0) newIndex = templates.length - 1
-			renderEmbed(msg, templates, newIndex, embed)
+			if (newIndex < 0) newIndex = templates.length - 1
+			renderEmbed(msg, templates, newIndex, embed, option)
 			return
 
 		case '➡️':
 			newIndex++
 			console.log(newIndex)
-			if (index >= templates.length) newIndex = 0
-			renderEmbed(msg, templates, newIndex, embed)
+			if (newIndex >= templates.length) newIndex = 0
+			renderEmbed(msg, templates, newIndex, embed, option)
 			return
 		
 		case option:
@@ -215,7 +214,8 @@ async function awaitTemplateReaction(msg, templates, index, embed, option) {
 			if (isAgain) {
 				if (optionString === 'hapus') newIndex--
 				if (templates.length < 1) return msg.channel.send('Template Server ini kosong')
-				renderEmbed(msg, templates, newIndex, embed)
+				console.log(newIndex, option, embed)
+				renderEmbed(msg, templates, newIndex, embed, option)
 				return
 			}
 

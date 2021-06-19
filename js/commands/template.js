@@ -52,14 +52,14 @@ async function awaitTemplateReaction(msg, templates, index, embed) {
 	switch (reactRes) {
 		case '⬅️':
 			newIndex--
-			if (index < 0) newIndex = templates.length - 1
+			if (newIndex < 0) newIndex = templates.length - 1
 			renderEmbed(msg, templates, newIndex, embed)
 			return
 
 		case '➡️':
 			newIndex++
 			console.log(newIndex)
-			if (index >= templates.length) newIndex = 0
+			if (newIndex >= templates.length) newIndex = 0
 			renderEmbed(msg, templates, newIndex, embed)
 			return
 		

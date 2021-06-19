@@ -20,15 +20,15 @@ module.exports = {
 
 		if (templateID) {
 			const templateData = await serverTemplates.get(templateID)
+			if (!templateData) return msg.channel.send('Templatemu Tidak ditemukan. Cobalah untuk mengganti template to do list dengan menggunakan `,p template`')
 			template = templateData.sticker
 		}
 
 		if (args.length >= 2) {
-
 			const editIndex = eval(args[0]) - 1
 			const completionInput = argsOption.indexOf(args[1])
 
-			console.log(completionInput)
+			if (completionInput < 0) return msg.channel.send(' hanya dapat menggunakan `default`, `ongoing`, `done`, atau `fail`')
 
 			completions[editIndex] = completionInput
 
@@ -36,7 +36,7 @@ module.exports = {
 			updateCompletionDB(msg.author.id, completions)
 		}
 
-		const userNickname = msg.guild.members.cache.get(msg.author.id).nickname
+		const userNickname = msg.author.tag
 
 		const embedDesc = todoData.map((item, index) => {
 			const itemCompletion = completions[index]

@@ -1,5 +1,5 @@
 const { checkDB, getProfile, updateProfile, getRemindDB, deleteDB } = require('../db.js')
-const { MessageEmbed } = require('discord.js')
+
 module.exports = {
 	name: 'test',
 	description: 'code testing and debugging',
@@ -9,6 +9,8 @@ module.exports = {
 		//const num = eval(args[0]) - 1
 		//console.log('')
 		//deleteDB('todo')
-		deleteDB('userTemp')
+		//deleteDB('templates')
+		//deleteDB('userTemp')
+		console.log(args[0])
 	}
 }

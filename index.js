@@ -3,10 +3,12 @@ const onlineBot = require("./server")
 const Discord = require('discord.js')
 const { awaitReminderMessage, reminderInterval } = require('./js/await/reminder')
 const { todoInterval } = require('./js/await/todo')
+const { getPomodDB } = require('./js/db')
 
 const client = new Discord.Client()
 client.commands = new Discord.Collection()
 client.isProcessOn = new Discord.Collection()
+client.pomodoro = new Discord.Collection()
 
 let prefix = ',p'
 
@@ -20,9 +22,42 @@ for (const file of commandFiles) {
 
 client.on('ready', () => {
   console.log('Login success')
-  client.user.setActivity(`Azka Mengoding`, { type: 'WATCHING' })
+  client.user.setActivity(`Your Heart 🤪`, { type: 'PLAYING' })
 	reminderInterval(client)
 	todoInterval(client)
+})
+
+client.on('voiceStateUpdate', async (oldState, newState) => {
+	const guildSettings = await getPomodDB(newState.guild.id)
+	const { id, settings } = guildSettings
+
+	if (!guildSettings) return
+	if (newState.channelID === id) {		
+		console.log(guildSettings)
+		const option = {
+			type: 'voice',
+			parent: newState.channel.parent,
+			position: newState.channel.parent.children.length + 1,
+		}
+		const channel = await newState.guild.channels.create(`🟡 Pomodoro #${Array.from(client.pomodoro).length + 1}`, option)
+
+		newState.setChannel(channel)
+		client.pomodoro.set(channel.id, { host: newState.member, settings: settings, channel: channel })
+	}
+	
+	const channel = client.pomodoro.get(oldState.channelID)
+	console.log(channel)
+	if (!channel) return
+	console.log(Array.from(oldState.channel.members).length)
+	if (Array.from(oldState.channel.members).length < 1) {
+		if (channel.interval) {
+			clearInterval(channel.interval)
+			msg.channel.send('Channel dihapus, pomodoro dihentikan')
+		}
+		client.pomodoro.delete(oldState.channelID)
+		oldState.channel.delete()
+		console.log('baa')
+	}
 })
 
 client.on('message', msg => {

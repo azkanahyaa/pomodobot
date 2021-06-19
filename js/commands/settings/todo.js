@@ -1,12 +1,12 @@
 const { MessageEmbed } = require('discord.js')
-const { getTodoDB, updateTodoDB, updateCompletionDB } = require('../../db')
+const { getTodoDB, updateTodoDB, getCompletionDB, updateCompletionDB } = require('../../db')
 
 module.exports = {
 	name: 'todo',
 	execute(msg, args) {
 		const hours = new Date().getHours()
 		const minutes = new Date().getMinutes()
-		if (hours === 15) return msg.channel.send(`Sedang mereset semua to do list. Kamu dapat mengatur to do listmu lagi setelah ${61 - minutes} menit lagi`)
+		if (hours === 15 && minutes < 30) return msg.channel.send(`Sedang mereset semua to do list. Kamu dapat mengatur to do listmu lagi setelah ${61 - minutes} menit lagi`)
 		const userNickname = msg.guild.members.cache.get(msg.author.id).nickname
 		const settingsDesc = 'Tekan reaction di bawah untuk mengatur to do list anda:\n\n➕ = `tambah list`\n🗑️ = `hapus beberapa list`\n📝 = `mengedit list`\n✅ = `selesai`'
 		const settingsEmbed = new MessageEmbed()
@@ -77,6 +77,7 @@ module.exports = {
 async function addTodoList(msg, todoList = []) {
 	
 	const todoArray = todoList
+	const completionData = await getCompletionDB(msg.author.id)
 
 	const ynString = [ 'ya', 'tidak' ]
 
@@ -92,8 +93,11 @@ async function addTodoList(msg, todoList = []) {
 
 	const input1 = await awaitSingleMessage(msg, filterAuthor, qTxt1)
 	const todoInput = input1.split('\n')
+	const newCompletion = todoInput.map(() => 0 )
 	const newTodoArray = [ ...todoArray, ...todoInput]
-
+	let mergeCompletion = newCompletion
+	if (completionData) mergeCompletion = [ ...completionData, ...newCompletion ]
+	console.log(newCompletion, completionData)
 
 	const qTxt2 = new MessageEmbed()
 		.setColor('#347C7C')
@@ -108,8 +112,6 @@ async function addTodoList(msg, todoList = []) {
 		return
 	}
 
-	const completionData = newTodoArray.map(() => 0 )
-
 	let todoEmbed = new MessageEmbed()
 		.setColor('#347C7C')
 		.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
@@ -117,12 +119,13 @@ async function addTodoList(msg, todoList = []) {
 		.setDescription(`▫️ ${newTodoArray.join('\n▫️ ')}`)
 		.setFooter('gunakan `,p set todo` untuk mengedit list')
 	msg.channel.send(todoEmbed)
-	updateCompletionDB(msg.author.id, completionData)
+	updateCompletionDB(msg.author.id, mergeCompletion)
 	updateTodoDB(msg.author.id, newTodoArray)
 }
 
 async function removeTodoList(msg, todoList) {
 	let newTodoData = todoList
+	let completionData = await getCompletionDB(msg.author.id)
 
 	if (newTodoData.length < 1) return msg.channel.send('Todo List kamu hari ini kosong')
 
@@ -161,7 +164,11 @@ async function removeTodoList(msg, todoList) {
 			return
 		}
 		newTodoData.splice(num, 1)
+		completionData.splice(num, 1)
 	}
+
+	updateCompletionDB(msg.author.id, completionData)
+	updateTodoDB(msg.author.id, newTodoData)
 
 	const qTxt3 = new MessageEmbed()
 		.setColor('#347C7C')
@@ -176,15 +183,12 @@ async function removeTodoList(msg, todoList) {
 		return
 	}
 
-	const completionData = newTodoData.map(() => 0)
-
-	msg.channel.send('**Selesai!** Gunakan `,p todo` untuk melihat list dan gunakan `p!set todo` untuk kembali mengatur list')
-	updateCompletionDB(msg.author.id, completionData)
-	updateTodoDB(msg.author.id, newTodoData)
+	msg.channel.send('**Selesai!** Gunakan `,p todo` untuk melihat list dan gunakan `,p set todo` untuk kembali mengatur list')
 }
 
 async function editTodoList(msg, todoList) {
 	let newTodoData = todoList
+	let completionData = await getCompletionDB(msg.author.id)
 
 	const ynString = [ 'ya', 'tidak' ]
 
@@ -215,7 +219,7 @@ async function editTodoList(msg, todoList) {
 	const inputItem = await awaitSingleMessage(msg, filterOneLine, qTxt2)
 
 	newTodoData[itemNum] = inputItem
-	const completionData = newTodoData.map(() => 0)
+	completionData[itemNum] = 0
 
 	const qTxt3 = new MessageEmbed()
 		.setColor('#347C7C')
