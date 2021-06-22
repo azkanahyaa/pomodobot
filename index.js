@@ -3,12 +3,14 @@ const onlineBot = require("./server")
 const Discord = require('discord.js')
 const { awaitReminderMessage, reminderInterval } = require('./js/await/reminder')
 const { todoInterval } = require('./js/await/todo')
+const { alarmInterval } = require('./js/await/alarm')
 const { getPomodDB } = require('./js/db')
 
 const client = new Discord.Client()
 client.commands = new Discord.Collection()
 client.isProcessOn = new Discord.Collection()
 client.pomodoro = new Discord.Collection()
+client.alarm = new Discord.Collection()
 
 let prefix = ',p'
 
@@ -25,6 +27,7 @@ client.on('ready', () => {
   client.user.setActivity(`Your Heart 🤪`, { type: 'PLAYING' })
 	reminderInterval(client)
 	todoInterval(client)
+	alarmInterval(client)
 })
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
@@ -33,7 +36,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
 	if (!guildSettings) return
 	if (newState.channelID === id) {		
-		console.log(guildSettings)
 		const option = {
 			type: 'voice',
 			parent: newState.channel.parent,
@@ -46,17 +48,15 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 	}
 	
 	const channel = client.pomodoro.get(oldState.channelID)
-	console.log(channel)
 	if (!channel) return
-	console.log(Array.from(oldState.channel.members).length)
 	if (Array.from(oldState.channel.members).length < 1) {
-		if (channel.interval) {
-			clearInterval(channel.interval)
-			msg.channel.send('Channel dihapus, pomodoro dihentikan')
-		}
-		client.pomodoro.delete(oldState.channelID)
-		oldState.channel.delete()
-		console.log('baa')
+		oldState.channel.delete().then(() => {
+			if (channel.interval) {
+				clearInterval(channel.interval)
+				msg.channel.send('Channel dihapus, pomodoro dihentikan')
+			}
+			client.pomodoro.delete(oldState.channelID)
+		})
 	}
 })
 
@@ -75,7 +75,6 @@ client.on('message', msg => {
   const args = content.slice(prefix.length).trim().split(/ +/)
   const commandName = args.shift().toLowerCase()
 
-  console.log(client.commands) 
 
   const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName))
 

@@ -11,6 +11,5 @@ module.exports = {
 		//deleteDB('todo')
 		//deleteDB('templates')
 		//deleteDB('userTemp')
-		console.log(args[0])
 	}
 }

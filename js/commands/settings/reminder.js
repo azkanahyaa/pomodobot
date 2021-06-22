@@ -17,11 +17,11 @@ module.exports = {
 		const configuration = {
 			setremindChannel: setremindChannel,
 			remindChannel: remindChannel,
-			queue: [  ] // structure: [ {time, user, desc}, etc ]
+			queue: [  ] // structure: [ {time, user, desc}, ... ]
 		}
 		console.log(configuration)
 
-		msg.channel.send(`reminder channel: ${remindChannel}\nset reminder channel: ${setremindChannel}`)
+		msg.channel.send(`set reminder channel: ${setremindChannel}\nreminder channel: ${remindChannel}`)
 
 		updateRemindDB(msg.guild.id, configuration)
 			

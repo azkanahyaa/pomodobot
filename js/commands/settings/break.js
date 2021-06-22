@@ -5,12 +5,14 @@ module.exports = {
 	execute(msg, args) {
 		const member = msg.guild.members.cache.get(msg.author.id)
 		const config = msg.client.pomodoro.get(member.voice.channelID)
+
+		if (!config) return msg.channel.send('Kamu harus membuat voice channel pomodoro untuk menggunakan command ini')
+		if (config.host.id !== msg.author.id) return msg.channel.send('kamu bukan host dari channel pomodoro ini')
+
 		let settings = config.settings
 
-		if (!config) return msg.channel.send('Kamu harus membuat voice channel pomodoro untuk mengguanakan command ini')
-
 		const newVal = eval(args[0])
-		if (newVal < 5) return msg.channel.send('Waktu Istirahat minimal 5 menit')
+		if (newVal < 5 || isNaN(newVal)) return msg.channel.send('Masukkan Durasi Istirahat dengan Benar. Waktu Istirahat minimal 5 menit')
 		settings[1] = newVal
 		msg.client.pomodoro.set(member.voice.channelID, { ...config, settings })
 

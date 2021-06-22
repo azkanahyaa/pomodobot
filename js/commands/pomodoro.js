@@ -9,7 +9,6 @@ module.exports = {
   async execute(msg, args) {
 		const member = msg.guild.members.cache.get(msg.author.id)
 		const config = msg.client.pomodoro.get(member.voice.channelID)
-		const settings = config.settings
 
 		if (!config) return msg.channel.send('Kamu harus membuat voice channel pomodoro untuk mengguanakan command ini')
 
@@ -21,11 +20,10 @@ module.exports = {
 
 		const modeOpt = [ 'break', 'focus', 'start' ]
 		const isCount = modeOpt.some(m => m === args[0])
+		const settings = config.settings
 
-		console.log(config)
 		
 		if (args.length > 0 && isCount) {
-			console.log('ping')
 			let mode = modeOpt.indexOf(args[0])
 			let isStart = Boolean(mode)
 			let loop = 1
@@ -80,7 +78,8 @@ async function countDown(config, isStart, loop, embed) {
 	channel.setName(mode)
 	const endTime = new Date().getTime() + duration * 1000 * 60
 	const counting = setInterval(() => {
-		channel.client.pomodoro.set(channel.channelID, { ...config, interval: counting })
+		channel.client.pomodoro.set(channel.id, { ...config, interval: counting })
+		if (channel.deleted) return embed.edit('Voice channel tidak ditemukan. Pomodoro dihentikan')
 		const now = new Date().getTime()
 		const timeLeft = endTime - now
 
@@ -91,21 +90,23 @@ async function countDown(config, isStart, loop, embed) {
 			.setColor(color)
 			.setTitle(`${mode.split(' ')[1]} for`)
 			.setDescription(`> **${minutes} min ${seconds + 1} sec**`)
-			.setFooter(host.user.tag, host.user.displayAvatarURL())
+			.setFooter(`Host: ${host.user.tag}`, host.user.displayAvatarURL())
 		embed.edit(embedContent)
 
 		if (timeLeft <= 0) {
 			const nextLoop = loop - 1
 			clearInterval(counting)
 			embed.edit(`${mode.split(' ')[1]} selesai ${host} <:me:850385320230780949>`)
-			if (autoFocus) embed.edit(`Pomodoro di channel ${channel.name} selesai`)
+
+			if (autoFocus && nextLoop === 0) embed.edit(`Pomodoro di channel ${channel.name} selesai`)
+
+			channel.client.alarm.set(channel.id, channel)
+
 			if (nextLoop <= 0) return 
 			countDown(config, !isStart, nextLoop, embed)
 		}
 	}, 5000)
-
 }
-
 /*
 - ,p pomodoro <start | break | autostart>
   ~ start: 

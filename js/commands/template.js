@@ -7,8 +7,51 @@ module.exports = {
 	aliases: [ 'tem', 'tpl', 'sticker' ],
   async execute(msg, args) {
 		const templates = await getTemplateDB(msg.guild.id)
+		const templatesMap = new Map(templates)
 
 		if (templates.length < 1) return msg.channel.send('Template Server Kosong')
+
+		const template = templatesMap.get(args[0])
+
+		console.log(template)
+
+		if (template) {		
+			const reacts = [ '❌',  '✅' ]
+			const filter = (reaction, user) => reacts.some(react => react === reaction.emoji.name) && user.id === msg.author.id	
+			const todoOptions = [ 'default', 'on Going', 'Completed (done)', 'Uncompleted (fail)' ]
+
+			const templateEmbed = new MessageEmbed()
+				.setColor('#347C7C')
+				.setTitle(`${template.name} Templates`)
+				.setThumbnail(msg.guild.iconURL())
+				.setDescription(`\n> **ID**  : \`${args[0]}\`\n> **Stiker** : \n ${template.sticker.map((sticker, index) => `>   ${sticker} : ${todoOptions[index]}`).join('\n')}`)
+				.setFooter(`❌ : batal | ✅ : Gunakan Template`)
+
+			const embed = await msg.channel.send(templateEmbed)
+			for (const react of reacts) {
+				embed.react(react)
+			}
+			embed.awaitReactions(filter, { max: 1 }).then(collection => {
+				switch(collection.first().emoji.name) {
+					case '❌':
+						msg.channel.send('Proses Dibatalkan')
+						embed.delete()
+						return
+
+					case '✅':
+						getUserTemplateDB(msg.author.id).then(userTemplates => {
+							const userTemplatesMap = new Map(userTemplates)
+
+							userTemplatesMap.set(msg.guild.id, args[0])
+							updateUserTemplateDB(msg.author.id, Array.from(userTemplatesMap))
+							embed.delete()
+							msg.channel.send('Template Berhasil diganti')
+						})
+						return
+				}
+			})
+			return
+		}
 
 		const initialEmbed = new MessageEmbed()
 			.setColor('#347C7C')
