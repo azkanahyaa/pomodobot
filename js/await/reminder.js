@@ -38,7 +38,7 @@ async function awaitReminderMessage(msg, serverID) {
 
 			const newConfig = serverConfig
 			updateRemindDB(serverID, newConfig)
-			msg.react('💪')
+			msg.react('<:aru_key_sip:766703898295271424>')
 		}
 	} catch(err) {
 		console.log(err)
@@ -56,7 +56,7 @@ function reminderInterval(client) {
 
 		if (reminder.time - now > 0) return
 
-		const m = await channel.send(`Hallo <@${reminder.user}>, sudah waktunya untuk **${reminder.desc}** nih <:me:850385320230780949>. Jangan lupa atur reminder untuk to do listmu selanjutnya ya.`)
+		const m = await channel.send(`Hallo <@${reminder.user}>, sudah waktunya untuk **${reminder.desc}** nih <:aru_Woaah:766703813427593216>. Jangan lupa atur reminder untuk to do listmu selanjutnya ya.`)
 		m.react('👌')
 		config.queue.splice(0, 1)
 
