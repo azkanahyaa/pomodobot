@@ -18,7 +18,8 @@ module.exports = {
   execute(msg, args) {
 		const processOn = msg.client.processOn.get(msg.author.id)
 		let isProcessOn = false
-		if (processOn) isProcessOn = processOn.some(c => c = msg.channel.id)
+		if (processOn) isProcessOn = processOn.some(c => c === msg.channel.id)
+		console.log(processOn)
 		if (isProcessOn) return msg.channel.send('Masih ada proses yang belum selesai. ketik exit untuk menghentikan proses')
 
 		if (args.length < 1) return

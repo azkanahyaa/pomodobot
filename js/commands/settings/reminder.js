@@ -12,8 +12,12 @@ module.exports = {
 		msg.channel.send('masukkan channel untuk member mengatur pengingat')
 		const setremindChannel = await msg.channel.awaitMessages(filter, { max: 1 }).then(collected => Promise.resolve(collected.first().mentions.channels.first()))
 
+		if (!setremindChannel) return msg.channel.send('Channel tidak ditemukan')
+
 		msg.channel.send('masukkan channel tempat bot akan mengingatkan pengguna')
 		const remindChannel = await msg.channel.awaitMessages(filter, { max: 1 }).then(collected => Promise.resolve(collected.first().mentions.channels.first()))
+
+		if (!remindChannel) return msg.channel.send('Channel tidak ditemukan')
 
 		const configuration = {
 			setremindChannel: setremindChannel,
