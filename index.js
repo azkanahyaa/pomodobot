@@ -14,7 +14,6 @@ client.alarm = new Discord.Collection()
 
 let prefix = process.env.PREFIX
 
-
 const commandFiles = fs.readdirSync('./js/commands').filter(file => file.endsWith('.js'));
 
 for (const file of commandFiles) {
@@ -24,7 +23,7 @@ for (const file of commandFiles) {
 
 client.on('ready', () => {
   console.log('Login success')
-  client.user.setActivity(`Your Heart 🤪`, { type: 'PLAYING' })
+  client.user.setActivity(`discord.gg/ruangbelajar`, { type: 'WATCHING' })
 	reminderInterval(client)
 	todoInterval(client)
 	alarmInterval(client)
