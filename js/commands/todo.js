@@ -48,11 +48,11 @@ module.exports = {
 		})
 
 		const todoEmbed = new MessageEmbed()
-			.setColor('#347C7C')
+			.setColor('#73cfff')
 			.setAuthor(`${userNickname}`, msg.author.displayAvatarURL())
 			.setTitle('> DAILY TODO LIST')
 			.setDescription(embedDesc)
-			.setFooter(`gunakan \`${prefix} set todo\` untuk mengedit list`)
+			.setFooter(`gunakan \`${prefix} set todo\` untuk mengedit list`, 'https://cdn.discordapp.com/icons/578618709325774849/a_8cdb592b5442e78f89a15d94277ba3da.gif')
 		msg.channel.send(todoEmbed)
 		console.log(completions)
 	}

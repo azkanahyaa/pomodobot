@@ -25,7 +25,7 @@ module.exports = {
 			const todoOptions = [ 'default', 'on Going', 'Completed (done)', 'Uncompleted (fail)' ]
 
 			const templateEmbed = new MessageEmbed()
-				.setColor('#347C7C')
+				.setColor('#73cfff')
 				.setTitle(`${template.name} Templates`)
 				.setThumbnail(msg.guild.iconURL())
 				.setDescription(`\n> **ID**  : \`${args[0]}\`\n> **Stiker** : \n ${template.sticker.map((sticker, index) => `>   ${sticker} : ${todoOptions[index]}`).join('\n')}`)
@@ -58,7 +58,7 @@ module.exports = {
 		}
 
 		const initialEmbed = new MessageEmbed()
-			.setColor('#347C7C')
+			.setColor('#73cfff')
 			.setTitle(`${msg.guild.name} Templates`)
 			.setThumbnail(msg.guild.iconURL())
 			.setDescription(`🔄 Fetching Data ...`)
@@ -79,7 +79,7 @@ async function renderEmbed(msg, templates, index, embed) {
 	const todoOptions = [ 'default', 'on Going', 'Completed (done)', 'Uncompleted (fail)' ]
 
 	const templateEmbed = new MessageEmbed()
-		.setColor('#347C7C')
+		.setColor('#73cfff')
 		.setTitle(`${msg.guild.name} Templates`)
 		.setThumbnail(msg.guild.iconURL())
 		.setDescription(`\n> **ID**  : \`${template[0]}\`\n> **Nama** : \`${template[1].name}\`\n> **Stiker** : \n ${template[1].sticker.map((sticker, index) => `>   ${sticker} : ${todoOptions[index]}`).join('\n')}`)

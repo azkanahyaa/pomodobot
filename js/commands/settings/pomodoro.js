@@ -4,6 +4,9 @@ const { MessageEmbed } = require('discord.js')
 module.exports = {
 	name: 'pomodoro',
   async execute(msg, args) {
+		const hasPermit = msg.member.permissions.has('MANAGE_GUILD')
+		if (!hasPermit) return msg.channel.send('Kamu harus memiliki permission `MANAGE_GUILD` untuk menggunakan command ini')
+
 		const ynString = [ 'ya', 'tidak' ]
 		
 		const filterAuthor = m => msg.author.id === m.author.id
@@ -23,7 +26,7 @@ module.exports = {
 		let defaultValue = [ 25, 5, 8 ]
 
 		const defaultEmbed = new MessageEmbed()
-			.setColor('#347C7C')
+			.setColor('#73cfff')
 			.setTitle(`Pengaturan Default ${msg.guild.name}`)
 			.addFields(
 				{ name: '🔴 Durasi Fokus', value: `${defaultValue[0]} menit`, inline: true },
@@ -98,13 +101,17 @@ module.exports = {
 }
 
 async function awaitSingleMessage(msg, filter, questionTxt) {
-	msg.client.isProcessOn.set(msg.author.id, true)
+	let channels = await msg.client.processOn.get(msg.author.id)
+	if (!channels) channels = []
+	msg.client.processOn.set(msg.author.id, [ ...channels, msg.channel.id ])
+
 	const questionMsg = await msg.channel.send(questionTxt)
 	const input = await msg.channel.awaitMessages(filter, { max: 1 }).then(collected => Promise.resolve(collected.first()))
 
-
 	questionMsg.delete()
-	msg.client.isProcessOn.set(msg.author.id, false)
+	let newChannels = await msg.client.processOn.get(msg.author.id)
+	msg.client.processOn.set(msg.author.id, newChannels.filter(c => c !== msg.channel.id))
+
 	if (input.content.toLowerCase() === 'exit') return msg.channel.send('**Proses Dihentikan**')
 	input.delete()
 	return Promise.resolve(input.content)

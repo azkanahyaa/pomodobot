@@ -16,8 +16,11 @@ module.exports = {
 	aliases: [ 'set', 'config', 'settings' ],
 	usages: [ `${prefix} setup < ${Array.from(commands).map(c => c[1].name).join(' | ')} >` ],
   execute(msg, args) {
-		const isProcessOn = msg.client.isProcessOn.get(msg.author.id)
+		const processOn = msg.client.processOn.get(msg.author.id)
+		let isProcessOn = false
+		if (processOn) isProcessOn = processOn.some(c => c = msg.channel.id)
 		if (isProcessOn) return msg.channel.send('Masih ada proses yang belum selesai. ketik exit untuk menghentikan proses')
+
 		if (args.length < 1) return
 		const subArgs = args
 		const subCommand = subArgs.shift().toLowerCase()

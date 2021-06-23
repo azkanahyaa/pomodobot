@@ -26,6 +26,8 @@ module.exports = {
 				.setAuthor(`${prefix} ${command.name}`, msg.client.user.avatarURL())
 				.setDescription(command.description)
 				.addFields(...fields)
+				.setFooter('Ruang Belajar Official Bot', 'https://cdn.discordapp.com/icons/578618709325774849/a_8cdb592b5442e78f89a15d94277ba3da.gif')
+
 
 			msg.channel.send(helpEmbed)
 			return
@@ -36,11 +38,11 @@ module.exports = {
 		}).join('\n')
 
 		const helpEmbed = new MessageEmbed()
-			.setColor('#56A9E1')
+			.setColor('#73cfff')
 			.setAuthor(`List Command ${msg.client.user.username}`, msg.client.user.avatarURL())
 			.setDescription(`prefix bot: \`${prefix}\`\n\`${prefix} <command>\`: menggunakan command\n\`${prefix} help <command>\`: melihat informasi command`)
 			.addField('> Command List', fieldVal)
-			.setFooter('Ruang Belajar Official Bot')
+			.setFooter('Ruang Belajar Official Bot', 'https://cdn.discordapp.com/icons/578618709325774849/a_8cdb592b5442e78f89a15d94277ba3da.gif')
 
 		msg.channel.send(helpEmbed)
 	}

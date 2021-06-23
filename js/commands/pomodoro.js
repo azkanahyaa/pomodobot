@@ -16,7 +16,7 @@ module.exports = {
 
 		if (!config) return msg.channel.send('Kamu harus membuat voice channel pomodoro untuk mengguanakan command ini')
 
-		if (!config.interval && args[0] === 'end') {
+		if (config.interval && args[0] === 'end') {
 			clearInterval(config.interval)
 			msg.channel.send('Pomodoro dihentikan')
 			return
@@ -38,7 +38,7 @@ module.exports = {
 			if (config.host.id !== msg.author.id) return msg.channel.send('Kamu bukan host pomodoro di channel ini')
 
 			const embed = new MessageEmbed()
-				.setColor('#347C7C')
+				.setColor('#73cfff')
 				.addFields(
 					{ name: 'Host', value: config.host, inline: false },
 					{ name: 'Channel', value: `${config.channel}`, inline: false },
@@ -52,7 +52,7 @@ module.exports = {
 		}
 
 		const pomodEmbed = new MessageEmbed()
-			.setColor('#347C7C')
+			.setColor('#73cfff')
 			.setTitle(`Pengaturan Pomodoro di ${config.channel.name}`)
 			.setDescription(`> Mulai: \`${prefix} pomodoro <focus|break|start>\`\n> Atur: \`${prefix} set <focus|break|loop> <durasi>\``)
 			.addFields(

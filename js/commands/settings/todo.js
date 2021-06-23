@@ -8,7 +8,7 @@ module.exports = {
 	execute(msg, args) {
 		const hours = new Date().getHours()
 		const minutes = new Date().getMinutes()
-		if (hours === 15 && minutes < 30) return msg.channel.send(`Sedang mereset semua to do list. Kamu dapat mengatur to do listmu lagi setelah ${61 - minutes} menit lagi`)
+		if (hours === 15 && minutes < 30) return msg.channel.send(`Sedang mereset semua to do list. Kamu dapat mengatur to do listmu lagi setelah ${31 - minutes} menit lagi`)
 
 		let userNickname = msg.member.nickname
 		if (userNickname === null) userNickname = msg.author.username
@@ -109,7 +109,7 @@ async function addTodoList(msg, todoList = []) {
 	const qTxt2 = new MessageEmbed()
 		.setColor('#347C7C')
 		.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
-		.setDescription(`\n▫️ ${newTodoArray.join('\n▫️ ')}\n\n> Apakah Kamu ingin menambah to do list lagi? (Ketik: Ya/Tidak)`)
+		.setDescription(`> Apakah Kamu ingin menambah to do list lagi? **(Ketik: Ya/Tidak)**\n▫️ ${newTodoArray.join('\n▫️ ')}\n`)
 
 	const input2 = await awaitSingleMessage(msg, filterCondition, qTxt2)
 	const isAddAgain = input2.toLowerCase() === 'ya'
@@ -148,13 +148,13 @@ async function removeTodoList(msg, todoList) {
 	const todoEmbed = new MessageEmbed()
 		.setColor('#347C7C')
 		.setAuthor(`DAILY TO DO LIST`, msg.author.displayAvatarURL())
-		.setDescription(`\`\`\`json\n"Masukkan Nomor List yang ingin Dihapus:"\`\`\`\n${newTodoData.map((item, index) => `**${index + 1}.** ${item}`).join('\n')}\n`)
+		.setDescription(`> Masukkan Nomor List yang ingin Dihapus:\n${newTodoData.map((item, index) => `**${index + 1}.** ${item}`).join('\n')}\n`)
 		.setFooter('ketik `exit` untuk membatalkan proses')
 
 	const input = await awaitSingleMessage(msg, filterNumbers, todoEmbed)
 	const inputArray = input.split(',').map(num => eval(num) - 1).sort((a, b) => b - a)
 
-	const qTxt2 = `Hapus to do list nomor ${input}? **(Ya/Tidak)**`
+	const qTxt2 = `Hapus to do list nomor ${input}? **(Ketik: Ya/Tidak)**`
 
 	const input2 = await awaitSingleMessage(msg, filterCondition, qTxt2)
 	const isDelete = input2.toLowerCase() === 'ya'
@@ -180,7 +180,7 @@ async function removeTodoList(msg, todoList) {
 	const qTxt3 = new MessageEmbed()
 		.setColor('#347C7C')
 		.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
-		.setDescription(`\n▫️ ${newTodoData.join('\n▫️ ')}\n\n\`\`\`json\nApakah Kamu ingin menghapus to do list lagi? "(Ketik: Ya/Tidak)"\n\`\`\``)
+		.setDescription(`> Apakah Kamu ingin menghapus to do list lagi? **(Ketik: Ya/Tidak)**\n▫️ ${newTodoData.join('\n▫️ ')}`)
 
 	const input3 = await awaitSingleMessage(msg, filterCondition, qTxt3)
 	const isAddAgain = input3.toLowerCase() === 'ya'
@@ -208,7 +208,7 @@ async function editTodoList(msg, todoList) {
 	const todoEmbed = new MessageEmbed()
 		.setColor('#347C7C')
 		.setAuthor(`DAILY TO DO LIST`, msg.author.displayAvatarURL())
-		.setDescription(`\`\`\`json\n"Masukkan Nomor List yang ingin Diedit:"\`\`\`\n${newTodoData.map((item, index) => `**${index + 1}.** ${item}`).join('\n')}\n`)
+		.setDescription(`> Masukkan Nomor List yang ingin Diedit:\n${newTodoData.map((item, index) => `**${index + 1}.** ${item}`).join('\n')}\n`)
 		.setFooter('ketik `exit` untuk membatalkan proses')
 
 	const inputNum = await awaitSingleMessage(msg, filterNumber, todoEmbed)
@@ -227,9 +227,9 @@ async function editTodoList(msg, todoList) {
 	newTodoData[itemNum] = inputItem
 
 	const qTxt3 = new MessageEmbed()
-		.setColor('#347C7C')
+		.setColor('#73cfff')
 		.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
-		.setDescription(`\n▫️ ${newTodoData.join('\n▫️ ')}\n\n\`\`\`json\nApakah Kamu ingin mengedit to do list lagi? "(Ketik: Ya/Tidak)"\n\`\`\``)
+		.setDescription(`> Apakah kamu ingin mengedit to do list yang lain?\n▫️ ${newTodoData.join('\n▫️ ')}`)
 
 	const input3 = await awaitSingleMessage(msg, filterCondition, qTxt3)
 	const isAddAgain = input3.toLowerCase() === 'ya'
@@ -244,13 +244,18 @@ async function editTodoList(msg, todoList) {
 }
 
 async function awaitSingleMessage(msg, filter, questionTxt) {
-	msg.client.isProcessOn.set(msg.author.id, true)
+	let channels = await msg.client.processOn.get(msg.author.id)
+	if (!channels) channels = []
+	msg.client.processOn.set(msg.author.id, [ ...channels, msg.channel.id ])
+
 	const questionMsg = await msg.channel.send(questionTxt)
 	const input = await msg.channel.awaitMessages(filter, { max: 1 }).then(collected => Promise.resolve(collected.first()))
 
 
 	questionMsg.delete()
-	msg.client.isProcessOn.set(msg.author.id, false)
+	let newChannels = await msg.client.processOn.get(msg.author.id)
+	msg.client.processOn.set(msg.author.id, newChannels.filter(c => c !== msg.channel.id))
+
 	if (input.content.toLowerCase() === 'exit') return msg.channel.send('**Proses Dihentikan**')
 	input.delete()
 	return Promise.resolve(input.content)

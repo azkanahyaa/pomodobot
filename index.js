@@ -8,7 +8,7 @@ const { getPomodDB } = require('./js/db')
 
 const client = new Discord.Client()
 client.commands = new Discord.Collection()
-client.isProcessOn = new Discord.Collection()
+client.processOn = new Discord.Collection()
 client.pomodoro = new Discord.Collection()
 client.alarm = new Discord.Collection()
 
@@ -50,10 +50,6 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 	if (!channel) return
 	if (Array.from(oldState.channel.members).length < 1) {
 		oldState.channel.delete().then(() => {
-			if (channel.interval) {
-				clearInterval(channel.interval)
-				msg.channel.send('Channel dihapus, pomodoro dihentikan')
-			}
 			client.pomodoro.delete(oldState.channelID)
 		})
 	}
@@ -63,11 +59,11 @@ client.on('message', msg => {
 
 	if (msg.author.bot) return
 
-	let isProcessOn = client.isProcessOn.get(msg.author.id)
+	let isProcessOn = client.processOn.get(msg.author.id)
   const content = msg.content
 	awaitReminderMessage(msg, msg.guild.id)
 
-	if (!isProcessOn) isProcessOn = false
+	if (!isProcessOn) isProcessOn = []
 
   if (!content.toLowerCase().startsWith(prefix)) return
 

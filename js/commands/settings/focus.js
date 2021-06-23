@@ -20,7 +20,7 @@ module.exports = {
 		msg.client.pomodoro.set(member.voice.channelID, { ...config, settings })
 
 		const pomodEmbed = new MessageEmbed()
-			.setColor('#347C7C')
+			.setColor('#73cfff')
 			.setTitle(`Pengaturan Pomodoro di ${config.channel.name}`)
 			.setDescription(`> Mulai: \`${prefix} pomodoro <start|break|start>\`\n> Atur: \`${prefix} set <focus|break|loop> <durasi>\``)
 			.addFields(
