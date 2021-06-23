@@ -12,7 +12,7 @@ module.exports = {
 
 		let userNickname = msg.member.nickname
 		if (userNickname === null) userNickname = msg.author.username
-		const settingsDesc = 'Tekan reaction di bawah untuk mengatur to do list anda:\n\n➕ = `tambah list`\n🗑️ = `hapus beberapa list`\n📝 = `mengedit list`\n📦 = `server template`\n✅ = `selesai`'
+		const settingsDesc = 'Tekan reaction di bawah untuk mengatur to do list anda:\n\n🌀 = `tambah list`\n🗑️ = `hapus beberapa list`\n📝 = `mengedit list`\n📦 = `server template`\n✅ = `selesai`'
 
 		const settingsEmbed = new MessageEmbed()
 			.setColor('#347C7C')
@@ -22,7 +22,7 @@ module.exports = {
 			.setFooter(`gunakan ${prefix} todo untuk melihat to do list`);
 
 		msg.channel.send(settingsEmbed).then(m => {
-			const embedReact = [ '➕','🗑️','📝','📦','✅', ]
+			const embedReact = [ '🌀','🗑️','📝','📦','✅', ]
 
 			for (const react of embedReact) {
 				m.react(react)
@@ -32,7 +32,7 @@ module.exports = {
 			m.awaitReactions(filter, {max: 1}).then(collected => {
 				console.log(collected.first().emoji.name)
 				switch (collected.first().emoji.name) {
-					case '➕':
+					case '🌀':
 						getTodoDB(msg.author.id).then(list => {
 							m.delete()
 							if (!list) return addTodoList(msg)

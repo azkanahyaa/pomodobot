@@ -83,7 +83,11 @@ async function countDown(config, isStart, loop, embed) {
 	const endTime = new Date().getTime() + duration * 1000 * 60
 	const counting = setInterval(() => {
 		channel.client.pomodoro.set(channel.id, { ...config, interval: counting })
-		if (channel.deleted) return embed.edit('Voice channel tidak ditemukan. Pomodoro dihentikan')
+		if (channel.deleted) {
+			clearInterval(counting)
+			channel.client.pomodoro.delete(channel.id)
+			embed.edit('Voice channel tidak ditemukan. Pomodoro dihentikan')
+		}
 		const now = new Date().getTime()
 		const timeLeft = endTime - now
 

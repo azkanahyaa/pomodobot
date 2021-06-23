@@ -9,7 +9,7 @@ module.exports = {
   async execute(msg, args) {
 
 		const guildName = msg.guild.name
-		const settingsDesc = 'Tekan reaction di bawah untuk mengatur template To Do List server anda:\n\n➕ = `tambah template baru`\n🗑️ = `menghapus template`\n📝 = `mengedit template yang ada`\n✅ = `selesai`'
+		const settingsDesc = 'Tekan reaction di bawah untuk mengatur template To Do List server anda:\n\n🌀 = `tambah template baru`\n🗑️ = `menghapus template`\n📝 = `mengedit template yang ada`\n✅ = `selesai`'
 		const settingsEmbed = new MessageEmbed()
 			.setColor('#347C7C')
 			.setTitle(`${guildName} Daily To Do List`)
@@ -17,7 +17,7 @@ module.exports = {
 			.setThumbnail(msg.author.displayAvatarURL())
 
 		const embedMsg = await msg.channel.send(settingsEmbed)
-		const embedReact = [ '➕','🗑️','📝','✅', ]
+		const embedReact = [ '🌀','🗑️','📝','✅', ]
 		const filterReaction = (reaction, user) => embedReact.some(react => react === reaction.emoji.name) && user.id == msg.author.id
 
 		for (const react of embedReact) {
