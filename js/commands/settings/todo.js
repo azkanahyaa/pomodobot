@@ -1,6 +1,8 @@
 const { MessageEmbed } = require('discord.js')
 const { getTodoDB, updateTodoDB, getCompletionDB, updateCompletionDB, getTemplateDB } = require('../../db')
 
+let prefix = process.env.PREFIX
+
 module.exports = {
 	name: 'todo',
 	execute(msg, args) {
@@ -17,7 +19,7 @@ module.exports = {
 			.setTitle(`${userNickname} Daily To Do List`)
 			.setDescription(settingsDesc)
 			.setThumbnail(msg.author.displayAvatarURL())
-			.setFooter('gunakan p!todo untuk melihat to do list');
+			.setFooter(`gunakan ${prefix} todo untuk melihat to do list`);
 
 		msg.channel.send(settingsEmbed).then(m => {
 			const embedReact = [ '➕','🗑️','📝','📦','✅', ]
@@ -69,7 +71,7 @@ module.exports = {
 								.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
 								.setTitle(`DAILY TO DO LIST`)
 								.setDescription(`▫️ ${list.join('\n▫️ ')}`)
-								.setFooter('gunakan ,p todo untuk melihat kembali list')
+								.setFooter(`gunakan ${prefix} todo untuk melihat kembali list`)
 							msg.channel.send(todoEmbed)
 						})
 						return
@@ -122,7 +124,7 @@ async function addTodoList(msg, todoList = []) {
 		.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
 		.setTitle(`DAILY TO DO LIST`)
 		.setDescription(`▫️ ${newTodoArray.join('\n▫️ ')}`)
-		.setFooter('gunakan `,p set todo` untuk mengedit list')
+		.setFooter(`gunakan \`${prefix} set todo\` untuk mengedit list`)
 	msg.channel.send(todoEmbed)
 	updateCompletionDB(msg.author.id, mergeCompletion)
 	updateTodoDB(msg.author.id, newTodoArray)
@@ -188,7 +190,7 @@ async function removeTodoList(msg, todoList) {
 		return
 	}
 
-	msg.channel.send('**Selesai!** Gunakan `,p todo` untuk melihat list dan gunakan `,p set todo` untuk kembali mengatur list')
+	msg.channel.send(`**Selesai!** Gunakan \`${prefix} todo\` untuk melihat list dan gunakan \`${prefix} set todo\` untuk kembali mengatur list`)
 }
 
 async function editTodoList(msg, todoList) {
@@ -237,7 +239,7 @@ async function editTodoList(msg, todoList) {
 		return
 	}
 
-	msg.channel.send('**Selesai!** Gunakan `p!todo` untuk melihat list dan gunakan `p!set todo` untuk kembali mengatur list')
+	msg.channel.send(`**Selesai!** Gunakan \`${prefix} todo\` untuk melihat list dan gunakan \`${prefix} set todo\` untuk kembali mengatur list`)
 	updateTodoDB(msg.author.id, newTodoData)
 }
 
@@ -265,7 +267,7 @@ async function showAllTemplate(msg, templates) {
 	const embedContent = new MessageEmbed()
 		.setAuthor(`${msg.guild.name} template`, msg.guild.iconURL())
 		.setDescription(embedDesc)
-		.setFooter('Gunakan `,p template <id>` untuk menggunakan template')
+		.setFooter(`Gunakan \`${prefix} template <id>\` untuk menggunakan template`)
 	
 	msg.channel.send(embedContent)
 }

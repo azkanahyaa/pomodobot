@@ -1,5 +1,7 @@
 const { MessageEmbed } = require('discord.js')
 
+let prefix = process.env.PREFIX
+
 module.exports = {
 	name: 'break',
 	execute(msg, args) {
@@ -19,7 +21,7 @@ module.exports = {
 		const pomodEmbed = new MessageEmbed()
 			.setColor('#347C7C')
 			.setTitle(`Pengaturan Pomodoro di ${config.channel.name}`)
-			.setDescription('> Mulai: `,p pomodoro <start|break|start>`\n> Atur: `,p set <focus|break|loop> <durasi>`')
+			.setDescription(`> Mulai: \`${prefix} pomodoro <start|break|start>\`\n> Atur: \`${prefix} set <focus|break|loop> <durasi>\``)
 			.addFields(
 				{ name: '🔴 Durasi Fokus', value: `${settings[0]} menit`, inline: true },
 				{ name: '🔵 Durasi Istirahat', value: `${settings[1]} menit`, inline: true },

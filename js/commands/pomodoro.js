@@ -2,10 +2,14 @@ const { getPomodDB } = require('../db')
 const { MessageEmbed } = require('discord.js')
 const Canvas = require('canvas')
 
+let prefix = process.env.PREFIX
+
 module.exports = {
 	name: 'pomodoro',
-	description: 'melihat pengaturan pomodoro, atau memulai hitung mundur',
+	description: 'Menampilkan pengaturan pomodoro di channel pengguna. Kamu hanya bisa menggunakan command ini saat berada di voice channel pomodoro',
 	aliases: [ 'pmd', 'pomod' ],
+	usages: [ `${prefix} pomodoro`, `${prefix} pomodoro <focus | break | start>` ],
+	examples: [ `${prefix} pomodoro`, `${prefix} pmd focus`, `${prefix} pomod start` ],
   async execute(msg, args) {
 		const member = msg.guild.members.cache.get(msg.author.id)
 		const config = msg.client.pomodoro.get(member.voice.channelID)
@@ -50,7 +54,7 @@ module.exports = {
 		const pomodEmbed = new MessageEmbed()
 			.setColor('#347C7C')
 			.setTitle(`Pengaturan Pomodoro di ${config.channel.name}`)
-			.setDescription('> Mulai: `,p pomodoro <focus|break|start>`\n> Atur: `,p set <focus|break|loop> <durasi>`')
+			.setDescription(`> Mulai: \`${prefix} pomodoro <focus|break|start>\`\n> Atur: \`${prefix} set <focus|break|loop> <durasi>\``)
 			.addFields(
 				{ name: '🔴 Durasi Fokus', value: `${settings[0]} menit`, inline: true },
 				{ name: '🔵 Durasi Istirahat', value: `${settings[1]} menit`, inline: true },
@@ -107,25 +111,3 @@ async function countDown(config, isStart, loop, embed) {
 		}
 	}, 5000)
 }
-/*
-- ,p pomodoro <start | break | autostart>
-  ~ start: 
-   + create endTime (getTime() + focus * 1000 * 60)
-   + startInterval, create nowTime
-   + clear Interval if endTime < now, change voice name
-  ~ break: 
-   + create endTime (getTime() + focus * 1000 * 60)
-   + startInterval, create nowTime
-   + clear Interval if endTime < now, change voice name
-  ~ autostart: 
-   + start loop
-   + create endTime (getTime() + focus * 1000 * 60)
-   + startInterval, create nowTime
-   + clear Interval if endTime < now, change voice name
-- ,p set focus <durasi fokus dalam satuan menit>
-- ,p set break <durasi jeda>
-- ,p set loop <jumlah pengulangan>
-
-init function { channel, duration, loop }
-function { startInterval until end }
-*/

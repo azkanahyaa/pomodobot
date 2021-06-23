@@ -2,6 +2,8 @@ const { getTemplateDB, updateTemplateDB } = require('../../db')
 const { MessageEmbed } = require('discord.js')
 const { customAlphabet } = require('nanoid')
 
+let prefix = process.env.PREFIX
+
 module.exports = {
 	name: 'template',
   async execute(msg, args) {
@@ -75,7 +77,7 @@ module.exports = {
 				return
 
 			case '✅':
-				msg.channel.send('Selesai! gunakan `,p template` untuk melihat seluruh template server')
+				msg.channel.send(`Selesai! gunakan \`${prefix} template\` untuk melihat seluruh template server`)
 		}
 
 
@@ -139,7 +141,7 @@ async function addTemplate(msg, templates, spcID = false) {
 		return
 	}
 
-	msg.channel.send('Selesai! Gunakan `,p template` untuk melihat dan memilih template yang akan digunakan')
+	msg.channel.send(`Selesai! Gunakan \`${prefix} template\` untuk melihat dan memilih template yang akan digunakan`)
 }
 
 async function renderEmbed(msg, templates, index, embed, option) {
@@ -219,7 +221,7 @@ async function awaitTemplateReaction(msg, templates, index, embed, option) {
 				return
 			}
 
-			msg.channel.send('Selesai! Gunakan `,p template` untuk melihat dan memilih template yang akan digunakan')
+			msg.channel.send(`Selesai! Gunakan \`${prefix} template\` untuk melihat dan memilih template yang akan digunakan`)
 			return
 
 		case '❌':

@@ -12,7 +12,7 @@ client.isProcessOn = new Discord.Collection()
 client.pomodoro = new Discord.Collection()
 client.alarm = new Discord.Collection()
 
-let prefix = ',p'
+let prefix = process.env.PREFIX
 
 
 const commandFiles = fs.readdirSync('./js/commands').filter(file => file.endsWith('.js'));

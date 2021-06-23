@@ -1,10 +1,14 @@
 const { getTemplateDB, getUserTemplateDB, updateUserTemplateDB } = require('../db.js')
 const { MessageEmbed } = require('discord.js')
 
+let prefix = process.en
+
 module.exports = {
 	name: 'template',
-	description: 'change to do list template',
+	description: 'Memilih template sticker to do list yang akan digunakan untuk menunjukan status to do list (default, onGoing, done, fail)',
 	aliases: [ 'tem', 'tpl', 'sticker' ],
+	usages: [ ',p template', ',p template <id>' ],
+	examples: [ ',p template', ',p tpl 2En75A' ],
   async execute(msg, args) {
 		const templates = await getTemplateDB(msg.guild.id)
 		const templatesMap = new Map(templates)
