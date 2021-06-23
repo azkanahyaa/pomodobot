@@ -22,7 +22,7 @@ module.exports = {
 			if (examples) fields.push({ name: 'Contoh Penggunaan', value: examples })
 
 			const helpEmbed = new MessageEmbed()
-				.setColor('#56A9E1')
+				.setColor('#73cfff')
 				.setAuthor(`${prefix} ${command.name}`, msg.client.user.avatarURL())
 				.setDescription(command.description)
 				.addFields(...fields)

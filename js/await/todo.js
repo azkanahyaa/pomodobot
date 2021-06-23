@@ -18,7 +18,7 @@ function todoInterval(client) {
 		})
 
 		const todoEmbed = new MessageEmbed()
-			.setColor('#347C7C')
+			.setColor('#73cfff')
 			.setTitle('> TO DO LIST DIRESET!')
 			.setDescription(embedDesc)
 			.setFooter('Jangan Lupa Untuk Mengatur To Do List Besok ya')

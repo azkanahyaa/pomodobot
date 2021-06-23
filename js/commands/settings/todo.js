@@ -15,7 +15,7 @@ module.exports = {
 		const settingsDesc = 'Tekan reaction di bawah untuk mengatur to do list anda:\n\n🌀 = `tambah list`\n🗑️ = `hapus beberapa list`\n📝 = `mengedit list`\n📦 = `server template`\n✅ = `selesai`'
 
 		const settingsEmbed = new MessageEmbed()
-			.setColor('#347C7C')
+			.setColor('#73cfff')
 			.setTitle(`${userNickname} Daily To Do List`)
 			.setDescription(settingsDesc)
 			.setThumbnail(msg.author.displayAvatarURL())
@@ -66,8 +66,8 @@ module.exports = {
 					case '✅':
 						getTodoDB(msg.author.id).then(list => {							
 							m.delete()
-							const todoEmbed = new MessageEmbed()
-								.setColor('#347C7C')
+							const todoEmbed = new MessageEmbed()			
+								.setColor('#73cfff')
 								.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
 								.setTitle(`DAILY TO DO LIST`)
 								.setDescription(`▫️ ${list.join('\n▫️ ')}`)
@@ -120,7 +120,7 @@ async function addTodoList(msg, todoList = []) {
 	}
 
 	let todoEmbed = new MessageEmbed()
-		.setColor('#347C7C')
+		.setColor('#73cfff')
 		.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
 		.setTitle(`DAILY TO DO LIST`)
 		.setDescription(`▫️ ${newTodoArray.join('\n▫️ ')}`)
@@ -146,7 +146,7 @@ async function removeTodoList(msg, todoList) {
 	const filterNumbers = m => filterAuthor(m) && ( filterExit(m)  || m.content.split(',').every(num => eval(num) !== isNaN) )
 
 	const todoEmbed = new MessageEmbed()
-		.setColor('#347C7C')
+		.setColor('#73cfff')
 		.setAuthor(`DAILY TO DO LIST`, msg.author.displayAvatarURL())
 		.setDescription(`> Masukkan Nomor List yang ingin Dihapus:\n${newTodoData.map((item, index) => `**${index + 1}.** ${item}`).join('\n')}\n`)
 		.setFooter('ketik `exit` untuk membatalkan proses')
@@ -178,7 +178,7 @@ async function removeTodoList(msg, todoList) {
 	updateTodoDB(msg.author.id, newTodoData)
 
 	const qTxt3 = new MessageEmbed()
-		.setColor('#347C7C')
+		.setColor('#73cfff')
 		.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
 		.setDescription(`> Apakah Kamu ingin menghapus to do list lagi? **(Ketik: Ya/Tidak)**\n▫️ ${newTodoData.join('\n▫️ ')}`)
 
@@ -206,7 +206,7 @@ async function editTodoList(msg, todoList) {
 	const filterNumbers = m => filterAuthor(m) && ( filterExit(m)  || m.content.split(',').every(num => eval(num) !== NaN) )
 
 	const todoEmbed = new MessageEmbed()
-		.setColor('#347C7C')
+		.setColor('#73cfff')
 		.setAuthor(`DAILY TO DO LIST`, msg.author.displayAvatarURL())
 		.setDescription(`> Masukkan Nomor List yang ingin Diedit:\n${newTodoData.map((item, index) => `**${index + 1}.** ${item}`).join('\n')}\n`)
 		.setFooter('ketik `exit` untuk membatalkan proses')

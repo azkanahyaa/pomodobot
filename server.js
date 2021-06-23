@@ -7,7 +7,7 @@ server.all("/", (req, res) => {
 })
 
 function onlineBot() {
-  server.listen(3000, () => {
+  server.listen(5000, () => {
     console.log("Server is ready.")
   })
 }
