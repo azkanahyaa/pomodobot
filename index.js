@@ -61,7 +61,7 @@ client.on('message', msg => {
 
 	let isProcessOn = client.processOn.get(msg.author.id)
   const content = msg.content
-	awaitReminderMessage(msg, msg.guild.id)
+	if (msg.guild) awaitReminderMessage(msg, msg.guild.id)
 
 	if (!isProcessOn) isProcessOn = []
 
