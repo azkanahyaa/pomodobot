@@ -124,7 +124,7 @@ async function addTodoList(msg, todoList = []) {
 		.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
 		.setTitle(`DAILY TO DO LIST`)
 		.setDescription(`▫️ ${newTodoArray.join('\n▫️ ')}`)
-		.setFooter(`gunakan \`${prefix} set todo\` untuk mengedit list`)
+		.setFooter(`gunakan \`${prefix} todo\` untuk melihat list`)
 	msg.channel.send(todoEmbed)
 	updateCompletionDB(msg.author.id, mergeCompletion)
 	updateTodoDB(msg.author.id, newTodoArray)
@@ -229,7 +229,7 @@ async function editTodoList(msg, todoList) {
 	const qTxt3 = new MessageEmbed()
 		.setColor('#73cfff')
 		.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
-		.setDescription(`> Apakah kamu ingin mengedit to do list yang lain?\n▫️ ${newTodoData.join('\n▫️ ')}`)
+		.setDescription(`> Apakah kamu ingin mengedit to do list yang lain? **(Ketik: Ya/Tidak)**\n▫️ ${newTodoData.join('\n▫️ ')}`)
 
 	const input3 = await awaitSingleMessage(msg, filterCondition, qTxt3)
 	const isAddAgain = input3.toLowerCase() === 'ya'

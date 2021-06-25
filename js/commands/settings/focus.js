@@ -14,8 +14,8 @@ module.exports = {
 
 		let settings = config.settings
 
-		const newVal = eval(args[0])
-		if (newVal < 10 || isNaN(newVal)) return msg.channel.send('Masukkan Durasi Fokus dengan Benar. Waktu Fokus minimal 10 menit')
+		const newVal = parseInt(args[0])
+		if (newVal < 10 || isNaN(newVal)) return msg.channel.send(`Masukkan Durasi Fokus dengan Benar. Waktu Fokus minimal 10 menit. Contoh: \`${prefix} set focus 10\``)
 		settings[0] = newVal
 		msg.client.pomodoro.set(member.voice.channelID, { ...config, settings })
 

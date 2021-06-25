@@ -13,8 +13,8 @@ module.exports = {
 
 		let settings = config.settings
 
-		const newVal = eval(args[0]) * 2
-		if (newVal < 2 || isNaN(newVal)) return msg.channel.send('Masukkan Jumlah Pengulangan dengan Benar. Pengulangan minimal 1 kali')
+		const newVal = parseInt(args[0]) * 2
+		if (newVal < 2 || isNaN(newVal)) return msg.channel.send(`Masukkan Jumlah Pengulangan dengan Benar. Pengulangan minimal 1 kali. Contoh: \`${prefix} set loop 6\``)
 		settings[2] = newVal
 		msg.client.pomodoro.set(member.voice.channelID, { ...config, settings })
 

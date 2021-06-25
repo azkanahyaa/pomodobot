@@ -10,11 +10,10 @@ module.exports = {
 
 		if (!config) return msg.channel.send('Kamu harus membuat voice channel pomodoro untuk menggunakan command ini')
 		if (config.host.id !== msg.author.id) return msg.channel.send('kamu bukan host dari channel pomodoro ini')
-
 		let settings = config.settings
 
-		const newVal = eval(args[0])
-		if (newVal < 5 || isNaN(newVal)) return msg.channel.send('Masukkan Durasi Istirahat dengan Benar. Waktu Istirahat minimal 5 menit')
+		const newVal = parseInt(args[0])
+		if (newVal < 5 || isNaN(newVal)) return msg.channel.send(`Masukkan Durasi Istirahat dengan Benar. Waktu Istirahat minimal 5 menit. Contoh: \`${prefix} set break 10\``)
 		settings[1] = newVal
 		msg.client.pomodoro.set(member.voice.channelID, { ...config, settings })
 
@@ -25,7 +24,7 @@ module.exports = {
 			.addFields(
 				{ name: '🔴 Durasi Fokus', value: `${settings[0]} menit`, inline: true },
 				{ name: '🔵 Durasi Istirahat', value: `${settings[1]} menit`, inline: true },
-				{ name: '🔄 Jumlah Pengulangan', value: `${settings[2]/2} kali`, inline: true }
+				{ name: '🔄 Jumlah Pengulangan', value: `${settings[2] / 2} kali`, inline: true }
 			)
 		msg.channel.send(pomodEmbed)
 	}
