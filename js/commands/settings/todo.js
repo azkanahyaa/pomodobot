@@ -233,6 +233,8 @@ async function editTodoList(msg, todoList) {
 
 	const input3 = await awaitSingleMessage(msg, filterCondition, qTxt3)
 	const isAddAgain = input3.toLowerCase() === 'ya'
+	
+	updateTodoDB(msg.author.id, newTodoData)
 
 	if (isAddAgain) {
 		editTodoList(msg, newTodoData)
@@ -240,7 +242,6 @@ async function editTodoList(msg, todoList) {
 	}
 
 	msg.channel.send(`**Selesai!** Gunakan \`${prefix} todo\` untuk melihat list dan gunakan \`${prefix} set todo\` untuk kembali mengatur list`)
-	updateTodoDB(msg.author.id, newTodoData)
 }
 
 async function awaitSingleMessage(msg, filter, questionTxt) {
