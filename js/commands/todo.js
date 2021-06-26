@@ -10,7 +10,7 @@ module.exports = {
 	usages: [ `${prefix} todo`, `${prefix} todo <no list> <default | ongoing | done | fail>` ],
 	examples: [ `${prefix} todo`, `${prefix} todo 1 ongoing`, `${prefix} td 4 done`, `${prefix} daily 6 fail` ],
   async execute(msg, args) {
-		const todoData = await getTodoDB(msg.author.id)
+		let todoData = await getTodoDB(msg.author.id)
 		let completions = await getCompletionDB(msg.author.id)
 		const serverTemplates = new Map(await getTemplateDB(msg.guild.id))
 		const userTemplates = new Map(await getUserTemplateDB(msg.author.id))
@@ -18,7 +18,8 @@ module.exports = {
 
 		console.log(templateID)
 
-		if (todoData.length < 1) return msg.channel.send(`todo list kamu kosong nih. Silahkan gunakan \`${prefix}setup todo\` untuk mengatur list kamu`)
+		if (!todoData) todoData = []
+		if (todoData.length < 1) return msg.channel.send(`todo list kamu kosong nih. Silahkan gunakan \`${prefix} setup todo\` untuk mengatur list kamu`)
 		const argsOption = [ 'default', 'ongoing', 'done', 'fail' ]
 		let template = [ '🔸', '🔹', '✅', '📛' ]
 

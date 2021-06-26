@@ -8,7 +8,7 @@ async function awaitReminderMessage(msg, serverID) {
 		if (serverConfig.length < 1) return console.log('baaa')
 
 		if (serverConfig.setremindChannel.id === msg.channel.id) {
-			const input = msg.content.split(' in ')
+			const input = msg.content.split('in')
 			const timeInput = input[input.length - 1]
  			let timeValue = 0
 
