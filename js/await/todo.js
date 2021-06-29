@@ -3,6 +3,7 @@ const { MessageEmbed } = require('discord.js')
 
 
 function todoInterval(client) {
+	client.processOn.set('deletingTodo', false)
 
 	async function cleanData(userID, todoList) {
 		let template = [ '🔸', '🔹', '✅', '📛' ]
@@ -33,22 +34,28 @@ function todoInterval(client) {
 	let checkTime = setInterval(() => {
 		const hours = new Date().getHours()
 		const minutes = new Date().getMinutes()
-		if (hours === 15 && minutes === 30) {
+		if (hours !== 15 || (hours === 15 && minutes > 10)) return
+
+		if (minutes === 10) {
 			deleteDB('todo')
 			deleteDB('completions')
 		} 
-		
-		if (hours !== 15 || (hours === 15 && minutes > 30)) return
 
 		checkDB('todo').then(users => {
-			const todoMap = new Map(users)
 			if (users.length < 1) return
+			if (client.processOn.get('deletingTodo')) return
+			client.processOn.set('deletingTodo', true)
 
-			for (const [id, todo] of todoMap) {
-				cleanData(id, todo)
+			let index = 0
+			for (const user of users) {
+				cleanData(user[0], user[1])
+				index++
+				if (index === users.length) {
+					client.processOn.set('deletingTodo', false)
+				}
 			}
 		})
-	}, 30000) 
+	}, 1000) 
 }
 
 

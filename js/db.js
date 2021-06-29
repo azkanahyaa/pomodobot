@@ -39,7 +39,6 @@ function getRemindDB(key) {
 			}
 
 			resolve(serversMap.get(key))
-			
 		})
 	})
 }

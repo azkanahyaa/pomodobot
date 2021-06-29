@@ -8,7 +8,7 @@ module.exports = {
 	execute(msg, args) {
 		const hours = new Date().getHours()
 		const minutes = new Date().getMinutes()
-		if (hours === 15 && minutes < 30) return msg.channel.send(`Sedang mereset semua to do list. Kamu dapat mengatur to do listmu lagi setelah ${31 - minutes} menit lagi`)
+		if (hours === 15 && minutes < 10) return msg.channel.send(`Sedang mereset semua to do list. Kamu dapat mengatur to do listmu lagi setelah ${11 - minutes} menit lagi`)
 
 		let userNickname = msg.member.nickname
 		if (userNickname === null) userNickname = msg.author.username

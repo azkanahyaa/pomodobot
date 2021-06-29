@@ -9,7 +9,7 @@ module.exports = {
 	usages: [ `${prefix} help`, `${prefix} help <command>` ],
 	examples: [ `${prefix} help`, `${prefix} help pomod`, `${prefix} help todo` ],
   async execute(msg, args) {
-		const commands = msg.client.commands
+		const commands = msg.client.commands.filter(c => !c.hidden)
 
 		const command = commands.get(args[0]) || commands.find(cmd => cmd.aliases && cmd.aliases.includes(args[0]))
 

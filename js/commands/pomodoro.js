@@ -17,9 +17,11 @@ module.exports = {
 		if (!config) return msg.channel.send('Kamu harus membuat voice channel pomodoro untuk mengguanakan command ini')
 
 		if (config.interval) {
-			if (args[0] !== 'end') return msg.channel.send(`Pomodoro di channelmu masih berjalan. Gunakan \`${prefix} pomodoro end\` atau buat ulang voice pomodoro untuk memulai pomodoro kembali`)
+			if (args[0] !== 'end' && args.length > 0) return msg.channel.send(`Pomodoro di channelmu masih berjalan. Gunakan \`${prefix} pomodoro end\` atau buat ulang voice pomodoro untuk memulai pomodoro kembali`)
 			clearInterval(config.interval)
+			config.embed.unpin()
 			msg.channel.send('Pomodoro dihentikan')
+			channel.client.pomodoro.set(channel.id, { ...config, interval: false })
 			return
 		}
 
@@ -35,6 +37,8 @@ module.exports = {
 			if (args[0] === 'start') {
 				loop = config.settings[2]
 			}
+			let autoFocus = false
+			if (loop > 1) autoFocus = true
 			
 			if (config.host.id !== msg.author.id) return msg.channel.send('Kamu bukan host pomodoro di channel ini')
 
@@ -48,7 +52,7 @@ module.exports = {
 				)
 			const embedMsg = await msg.channel.send(embed)
 
-			countDown(config, isStart, loop, embedMsg)
+			countDown(config, isStart, loop, embedMsg, autoFocus)
 			return	
 		}
 
@@ -66,10 +70,8 @@ module.exports = {
 	}
 }
 
-async function countDown(config, isStart, loop, embed) {
+async function countDown(config, isStart, loop, embed, autoFocus) {
 	const { channel, settings, host } = config
-	let autoFocus = false
-	if (loop > 1) autoFocus = true
 	
 	let duration = settings[0]
 	let mode = `🔴 Fokus [${settings[0]}]~${settings[1]}`
@@ -81,11 +83,14 @@ async function countDown(config, isStart, loop, embed) {
 	}
 
 	channel.setName(mode)
+	embed.pin()
+
 	const endTime = new Date().getTime() + duration * 1000 * 60
 	const counting = setInterval(() => {
-		channel.client.pomodoro.set(channel.id, { ...config, interval: counting })
+		channel.client.pomodoro.set(channel.id, { ...config, interval: counting, embed })
 		if (channel.deleted) {
 			clearInterval(counting)
+			embed.unpin()
 			channel.client.pomodoro.delete(channel.id)
 			embed.edit('Voice channel tidak ditemukan. Pomodoro dihentikan')
 		}
@@ -104,15 +109,23 @@ async function countDown(config, isStart, loop, embed) {
 
 		if (timeLeft <= 0) {
 			const nextLoop = loop - 1
+			let session = mode.split(' ')[1]
 			clearInterval(counting)
-			embed.edit(`${mode.split(' ')[1]} selesai ${host} <:me:850385320230780949>`)
+			embed.delete()
+			channel.client.pomodoro.set(channel.id, { ...config })
 
-			if (autoFocus && nextLoop === 0) embed.edit(`Pomodoro di channel ${channel.name} selesai`)
+			embed.channel.send(`${mode.split(' ')[1]} selesai ${host} <:aru_Woaah:766703813427593216>`).then(newEmbed => {
+				if (autoFocus && nextLoop === 0)  {
+					embed.edit(`Pomodoro di channel ${channel.name} selesai`)
+					channel.setName(`✅ ${settings[0]}~${settings[1]} Selesai`)
+					session = 'completed'
+				}
 
-			channel.client.alarm.set(channel.id, channel)
+				channel.client.alarm.set(channel.id, { channel, session })
 
-			if (nextLoop <= 0) return 
-			countDown(config, !isStart, nextLoop, embed)
+				if (nextLoop <= 0) return 
+				countDown(config, !isStart, nextLoop, newEmbed, autoFocus)
+			})
 		}
 	}, 5000)
 }
