@@ -1,14 +1,16 @@
-const { checkDB, getRemindDB, updateRemindDB } = require('../db')
+const { checkDB, getRemindDB, updateRemindDB, getVipDB } = require('../db')
 
 
 async function awaitReminderMessage(msg, serverID) {
 	try {
 		let serverConfig = await getRemindDB(serverID)
+		const isAdded = serverConfig.queue.some(q => q.id === msg.id)
 
-		if (serverConfig.length < 1) return
+		if (serverConfig.length < 1 || isAdded) return
 
 		if (serverConfig.setremindChannel.id === msg.channel.id) {
-			if (msg.content.startsWith('clear')) {
+			const content = msg.content.toLowerCase()
+			if (content.startsWith('clear')) {
 				const clearArg = msg.content.split(/ +/)[1]
 
 				if (clearArg) {
@@ -19,6 +21,15 @@ async function awaitReminderMessage(msg, serverID) {
 					} else	if (clearArg.length === 18) {
 						serverConfig.queue = serverConfig.queue.filter(item => {
 							return item.id !== clearArg
+						})
+					} else if (clearArg === 'dm') {
+						serverConfig.queue = serverConfig.queue.map(item => {
+							if (item.id === msg.author.id) item.dm = false
+
+							return item
+						})
+						serverConfig.dmActive = serverConfig.dmActive.filter(user => {
+							return user !== msg.author.id
 						})
 					}
 					const newConfig = { ...serverConfig }
@@ -34,6 +45,29 @@ async function awaitReminderMessage(msg, serverID) {
 				updateRemindDB(serverID, newConfig)
 				msg.react('<:aru_syedih:773951720597225483>')
 				return
+			} else if (content.startsWith('init')) {
+				const arg = content.split(/ +/)[1]
+				
+				if (arg === 'dm') {
+				  getVipDB(msg.guild.id).then(roles => {
+					  const userRoles = msg.member.roles.cache.map(role => role.id)
+					  const isVip = roles.some(role => {
+						  return userRoles.some(userRole => role === userRole)	
+					  })
+						const isActive = serverConfig.dmActive.some(role => role === msg.author.id)
+
+
+					  if (!isVip) return msg.channel.send('Hanya VIP member yang dapat mengaktifkan DM reminder')
+						if (isActive) return msg.channel.send('DMReminder sudah diaktifkan')
+
+						serverConfig.dmActive.push(msg.author.id)
+						console.log(serverConfig)
+						const newConfig = serverConfig
+						updateRemindDB(serverID, newConfig)
+						msg.react('<:aru_key_sip:766703898295271424>')
+				  }) 
+				  return
+				}
 			}
 			const types = [ 'in', 'at', 'every' ]
 			const type = types.find(type => {
@@ -51,6 +85,7 @@ async function awaitReminderMessage(msg, serverID) {
 				time: null,
 				user: msg.author.id,
 				loop: false,
+				dm: false,
 				desc
 			}
 			
@@ -102,9 +137,11 @@ async function awaitReminderMessage(msg, serverID) {
 			}
 
 			if (!reminder.time) return
+			const dmOn = serverConfig.dmActive.some(user => user === msg.author.id)
+			if (dmOn) reminder.dm = true
+
 			serverConfig.queue.push(reminder)
 			serverConfig.queue.sort((a, b) => a.time - b.time)
-			console.log(reminder)
 
 			const newConfig = serverConfig
 			updateRemindDB(serverID, newConfig)
@@ -126,8 +163,16 @@ function reminderInterval(client) {
 
 		if (reminder.time - now > 0) return
 
-		const m = await channel.send(`Hallo <@${reminder.user}>, sudah waktunya untuk **${reminder.desc}** nih <:aru_Woaah:766703813427593216>. Jangan lupa atur reminder untuk to do listmu selanjutnya ya.`)
+		const txt = `Hallo <@${reminder.user}>, sudah waktunya untuk **${reminder.desc}** nih <:aru_Woaah:766703813427593216>. Jangan lupa atur reminder untuk to do listmu selanjutnya ya.`
+
+		const m = await channel.send(txt)
 		m.react('👌')
+
+		if (reminder.dm) {
+			const user = await client.users.fetch(reminder.user)
+			user.send(txt)
+		}
+
 		if (reminder.loop) {
 			config.queue.push({ ...reminder, time: reminder.time + reminder.loop })
 			config.queue.sort((a, b) => a.time - b.time)

@@ -22,6 +22,7 @@ module.exports = {
 		const configuration = {
 			setremindChannel: setremindChannel,
 			remindChannel: remindChannel,
+			dmActive: [  ],
 			queue: [  ] // structure: [ {time, user, desc}, ... ]
 		}
 		console.log(configuration)

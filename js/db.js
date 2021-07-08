@@ -225,6 +225,38 @@ function updatePomodDB(key, data) {
 	})
 }
 
+function getVipDB(key) {
+	return new Promise((resolve, reject) => {
+		checkDB('vip').then(servers => {
+			const serversMap = new Map(servers)
+			if (servers.length < 1) {
+				resolve([ ])
+				return
+			}
+
+			resolve(serversMap.get(key))
+		})
+	})
+}
+
+function updateVipDB(key, data) {
+  return new Promise((resolve, reject) => {
+		checkDB('vip').then(servers => {
+			const serversMap = new Map(servers)
+			
+			if (servers.length < 1) {
+				db.set('vip', [ [key, data] ])
+				resolve('Data berhasil diubah')
+				return
+			}
+
+			serversMap.set(key, data)
+			db.set('vip', Array.from(serversMap))
+			resolve('Data berhasl diubah')
+		})
+	})
+}
+
 module.exports = { 
 	checkDB,
 	getRemindDB,
@@ -240,5 +272,7 @@ module.exports = {
 	getUserTemplateDB,
 	updateUserTemplateDB,
 	getPomodDB,
-	updatePomodDB
+	updatePomodDB,
+	getVipDB,
+	updateVipDB
 }
