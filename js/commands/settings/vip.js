@@ -4,6 +4,9 @@ let prefix = process.env.PREFIX
 module.exports = {
 	name: 'vip',
 	execute(msg, args) {
+		const hasPermit = msg.member.permissions.has('ADMINISTRATOR')
+		if (!hasPermit) return msg.channel.send('Kamu harus memiliki permission `ADMINISTRATOR` untuk menggunakan command ini')
+		
 		const mentions = msg.mentions.roles.map(role => role.id)
 		const idInputs = args.filter(arg => arg.length === 18)
 

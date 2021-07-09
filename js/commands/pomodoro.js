@@ -17,7 +17,7 @@ module.exports = {
 		if (!config) return msg.channel.send('Kamu harus membuat voice channel pomodoro untuk mengguanakan command ini')
 
 		if (config.interval) {
-			if (args[0] !== 'end' && args.length > 0) return msg.channel.send(`Pomodoro di channelmu masih berjalan. Gunakan \`${prefix} pomodoro end\` atau buat ulang voice pomodoro untuk memulai pomodoro kembali`)
+			if (args[0] !== 'end' && args.length < 1) return msg.channel.send(`Pomodoro di channelmu masih berjalan. Gunakan \`${prefix} pomodoro end\` atau buat ulang voice pomodoro untuk memulai pomodoro kembali`)
 			clearInterval(config.interval)
 			config.embed.unpin()
 			msg.channel.send('Pomodoro dihentikan')
