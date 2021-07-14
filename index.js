@@ -1,7 +1,7 @@
 const fs = require('fs')
 const onlineBot = require("./server")
 const Discord = require('discord.js')
-const { awaitReminderMessage, reminderInterval } = require('./js/await/reminder')
+const { awaitReminderMessage, checkReminder } = require('./js/await/reminder')
 const { todoInterval } = require('./js/await/todo')
 const { alarmInterval } = require('./js/await/alarm')
 const { getPomodDB } = require('./js/db')
@@ -24,7 +24,7 @@ for (const file of commandFiles) {
 client.on('ready', () => {
   console.log('Login success')
   client.user.setActivity(`discord.gg/ruangbelajar`, { type: 'WATCHING' })
-	reminderInterval(client)
+	checkReminder(client)
 	todoInterval(client)
 	alarmInterval(client)
 })
