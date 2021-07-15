@@ -1,5 +1,7 @@
 const { MessageEmbed } = require('discord.js')
 
+let prefix = process.env.PREFIX
+
 module.exports = {
 	name: 'loop',
 	execute(msg, args) {
@@ -11,15 +13,15 @@ module.exports = {
 
 		let settings = config.settings
 
-		const newVal = eval(args[0]) * 2
-		if (newVal < 2 || isNaN(newVal)) return msg.channel.send('Masukkan Jumlah Pengulangan dengan Benar. Pengulangan minimal 1 kali')
+		const newVal = parseInt(args[0]) * 2
+		if (newVal < 2 || isNaN(newVal)) return msg.channel.send(`Masukkan Jumlah Pengulangan dengan Benar. Pengulangan minimal 1 kali. Contoh: \`${prefix} set loop 6\``)
 		settings[2] = newVal
 		msg.client.pomodoro.set(member.voice.channelID, { ...config, settings })
 
 		const pomodEmbed = new MessageEmbed()
-			.setColor('#347C7C')
+			.setColor('#73cfff')
 			.setTitle(`Pengaturan Pomodoro di ${config.channel.name}`)
-			.setDescription('> Mulai: `,p pomodoro <start|break|start>`\n> Atur: `,p set <focus|break|loop> <durasi>`')
+			.setDescription(`> Mulai: \`${prefix} pomodoro <start|break|start>\`\n> Atur: \`${prefix} set <focus|break|loop> <durasi>\``)
 			.addFields(
 				{ name: '🔴 Durasi Fokus', value: `${settings[0]} menit`, inline: true },
 				{ name: '🔵 Durasi Istirahat', value: `${settings[1]} menit`, inline: true },

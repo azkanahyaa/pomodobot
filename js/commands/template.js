@@ -1,10 +1,14 @@
 const { getTemplateDB, getUserTemplateDB, updateUserTemplateDB } = require('../db.js')
 const { MessageEmbed } = require('discord.js')
 
+let prefix = process.en
+
 module.exports = {
 	name: 'template',
-	description: 'change to do list template',
+	description: 'Memilih template sticker to do list yang akan digunakan untuk menunjukan status to do list (default, onGoing, done, fail)',
 	aliases: [ 'tem', 'tpl', 'sticker' ],
+	usages: [ ',p template', ',p template <id>' ],
+	examples: [ ',p template', ',p tpl 2En75A' ],
   async execute(msg, args) {
 		const templates = await getTemplateDB(msg.guild.id)
 		const templatesMap = new Map(templates)
@@ -21,7 +25,7 @@ module.exports = {
 			const todoOptions = [ 'default', 'on Going', 'Completed (done)', 'Uncompleted (fail)' ]
 
 			const templateEmbed = new MessageEmbed()
-				.setColor('#347C7C')
+				.setColor('#73cfff')
 				.setTitle(`${template.name} Templates`)
 				.setThumbnail(msg.guild.iconURL())
 				.setDescription(`\n> **ID**  : \`${args[0]}\`\n> **Stiker** : \n ${template.sticker.map((sticker, index) => `>   ${sticker} : ${todoOptions[index]}`).join('\n')}`)
@@ -54,7 +58,7 @@ module.exports = {
 		}
 
 		const initialEmbed = new MessageEmbed()
-			.setColor('#347C7C')
+			.setColor('#73cfff')
 			.setTitle(`${msg.guild.name} Templates`)
 			.setThumbnail(msg.guild.iconURL())
 			.setDescription(`🔄 Fetching Data ...`)
@@ -75,7 +79,7 @@ async function renderEmbed(msg, templates, index, embed) {
 	const todoOptions = [ 'default', 'on Going', 'Completed (done)', 'Uncompleted (fail)' ]
 
 	const templateEmbed = new MessageEmbed()
-		.setColor('#347C7C')
+		.setColor('#73cfff')
 		.setTitle(`${msg.guild.name} Templates`)
 		.setThumbnail(msg.guild.iconURL())
 		.setDescription(`\n> **ID**  : \`${template[0]}\`\n> **Nama** : \`${template[1].name}\`\n> **Stiker** : \n ${template[1].sticker.map((sticker, index) => `>   ${sticker} : ${todoOptions[index]}`).join('\n')}`)

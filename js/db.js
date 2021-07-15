@@ -39,7 +39,6 @@ function getRemindDB(key) {
 			}
 
 			resolve(serversMap.get(key))
-			
 		})
 	})
 }
@@ -226,6 +225,70 @@ function updatePomodDB(key, data) {
 	})
 }
 
+function getVipDB(key) {
+	return new Promise((resolve, reject) => {
+		checkDB('vip').then(servers => {
+			const serversMap = new Map(servers)
+			if (servers.length < 1) {
+				resolve([ ])
+				return
+			}
+
+			resolve(serversMap.get(key))
+		})
+	})
+}
+
+function updateVipDB(key, data) {
+  return new Promise((resolve, reject) => {
+		checkDB('vip').then(servers => {
+			const serversMap = new Map(servers)
+			
+			if (servers.length < 1) {
+				db.set('vip', [ [key, data] ])
+				resolve('Data berhasil diubah')
+				return
+			}
+
+			serversMap.set(key, data)
+			db.set('vip', Array.from(serversMap))
+			resolve('Data berhasl diubah')
+		})
+	})
+}
+
+function getPmdChannelDB(key) {
+	return new Promise((resolve, reject) => {
+		checkDB('pmdChannel').then(channels => {
+			const channelsMap = new Map(servers)
+			if (channels.length < 1) {
+				resolve([ ])
+				return
+			}
+
+			resolve(channelsMap.get(key))
+		})
+	})
+}
+
+function updatePmdChannelDB(key, data) {
+  return new Promise((resolve, reject) => {
+		checkDB('pmdChannel').then(channels => {
+			const channelsMap = new Map(channels)
+			
+			if (channels.length < 1) {
+				db.set('pmdChannel', [ [key, data] ])
+				resolve('Data berhasil diubah')
+				return
+			}
+
+			channelsMap.set(key, data)
+			db.set('pmdChannel', Array.from(channelsMap))
+			resolve('Data berhasl diubah')
+		})
+	})
+}
+
 module.exports = { 
 	checkDB,
 	getRemindDB,
@@ -241,5 +304,9 @@ module.exports = {
 	getUserTemplateDB,
 	updateUserTemplateDB,
 	getPomodDB,
-	updatePomodDB
+	updatePomodDB,
+	getVipDB,
+	updateVipDB,
+	getPmdChannelDB,
+	updatePmdChannelDB
 }

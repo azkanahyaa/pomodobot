@@ -2,20 +2,24 @@ const { getTemplateDB, updateTemplateDB } = require('../../db')
 const { MessageEmbed } = require('discord.js')
 const { customAlphabet } = require('nanoid')
 
+let prefix = process.env.PREFIX
+
 module.exports = {
 	name: 'template',
   async execute(msg, args) {
+		const hasPermit = msg.member.permissions.has('MANAGE_GUILD')
+		if (!hasPermit) return msg.channel.send('Kamu harus memiliki permission `MANAGE_GUILD` untuk menggunakan command ini')
 
 		const guildName = msg.guild.name
-		const settingsDesc = 'Tekan reaction di bawah untuk mengatur template To Do List server anda:\n\n➕ = `tambah template baru`\n🗑️ = `menghapus template`\n📝 = `mengedit template yang ada`\n✅ = `selesai`'
+		const settingsDesc = 'Tekan reaction di bawah untuk mengatur template To Do List server anda:\n\n🌀 = `tambah template baru`\n🗑️ = `menghapus template`\n📝 = `mengedit template yang ada`\n✅ = `selesai`'
 		const settingsEmbed = new MessageEmbed()
-			.setColor('#347C7C')
-			.setTitle(`${guildName} Daily To Do List`)
+			.setColor('#73cfff')
+			.setTitle(`Pengaturan Template ${guildName}`)
 			.setDescription(settingsDesc)
 			.setThumbnail(msg.author.displayAvatarURL())
 
 		const embedMsg = await msg.channel.send(settingsEmbed)
-		const embedReact = [ '➕','🗑️','📝','✅', ]
+		const embedReact = [ '🌀','🗑️','📝','✅', ]
 		const filterReaction = (reaction, user) => embedReact.some(react => react === reaction.emoji.name) && user.id == msg.author.id
 
 		for (const react of embedReact) {
@@ -27,7 +31,7 @@ module.exports = {
 		const templates = await getTemplateDB(msg.guild.id)
 
 		switch (reactRes) {
-			case '➕':
+			case '🌀':
 				embedMsg.delete()
 
 				if (!templates) return addTemplate(msg)
@@ -39,7 +43,7 @@ module.exports = {
 				console.log(templates)
 				if (templates.length < 1) return msg.channel.send('Template Server Kosong')
 				const initialDelEmbed = new MessageEmbed()
-					.setColor('#347C7C')
+					.setColor('#73cfff')
 					.setTitle(`${msg.guild.name} Templates`)
 					.setThumbnail(msg.guild.iconURL())
 					.setDescription(`🔄 Fetching Data ...`)
@@ -59,7 +63,7 @@ module.exports = {
 				console.log(templates)
 				if (templates.length < 1) return msg.channel.send('Template Server Kosong')
 				const initialEditEmbed = new MessageEmbed()
-					.setColor('#347C7C')
+					.setColor('#73cfff')
 					.setTitle(`${msg.guild.name} Templates`)
 					.setThumbnail(msg.guild.iconURL())
 					.setDescription(`🔄 Fetching Data ...`)
@@ -75,7 +79,7 @@ module.exports = {
 				return
 
 			case '✅':
-				msg.channel.send('Selesai! gunakan `,p template` untuk melihat seluruh template server')
+				msg.channel.send(`Selesai! gunakan \`${prefix} template\` untuk melihat seluruh template server`)
 		}
 
 
@@ -122,24 +126,14 @@ async function addTemplate(msg, templates, spcID = false) {
 	templatesMap.set(templateID, newTemplate)
 	console.log(templatesMap)
 	updateTemplateDB(msg.guild.id, Array.from(templatesMap))
-	msg.channel.send('Template Berhasil diupdate')
 
 	if (spcID) return
 
-	const qTxt3 = new MessageEmbed()
+	const successEmbed = new MessageEmbed()
 		.setColor('#347C7C')
 		.setAuthor("TEMPLATE DITAMBAHKAN", msg.guild.iconURL())
-		.setDescription(`\n> **ID**  : \`${templateID}\`\n> **Nama** : \`${newTemplate.name}\`\n> **Stiker** : \n ${newTemplate.sticker.map((sticker, index) => `>   ${sticker} : ${todoOptions[index]}`).join('\n')}\n\nApakah Kamu ingin menambah template lagi? (Ketik: Ya/Tidak)`)
-
-	const input3 = await awaitSingleMessage(msg, filterCondition, qTxt3)
-	const isAddAgain = input3.toLowerCase() === 'ya'
-
-	if (isAddAgain) {
-		addTemplate(msg, Array.from(templatesMap))
-		return
-	}
-
-	msg.channel.send('Selesai! Gunakan `,p template` untuk melihat dan memilih template yang akan digunakan')
+		.setDescription(`\n> **ID**  : \`${templateID}\`\n> **Nama** : \`${newTemplate.name}\`\n> **Stiker** : \n ${newTemplate.sticker.map((sticker, index) => `>   ${sticker} : ${todoOptions[index]}`).join('\n')}\n`)
+	msg.channel.send(successEmbed)
 }
 
 async function renderEmbed(msg, templates, index, embed, option) {
@@ -148,7 +142,7 @@ async function renderEmbed(msg, templates, index, embed, option) {
 	let optionString = 'hapus'
 	if (option === '📝') optionString = 'edit'
 	const templateEmbed = new MessageEmbed()
-		.setColor('#347C7C')
+		.setColor('#73cfff')
 		.setTitle(`${msg.guild.name} Templates`)
 		.setThumbnail(msg.guild.iconURL())
 		.setDescription(`\n> **ID**  : \`${template[0]}\`\n> **Nama** : \`${template[1].name}\`\n> **Stiker** : \n ${template[1].sticker.map((sticker, index) => `>   ${sticker} : ${todoOptions[index]}`).join('\n')}`)
@@ -206,20 +200,7 @@ async function awaitTemplateReaction(msg, templates, index, embed, option) {
 				embed.delete()
 			}
 
-			const qTxt2 = `${optionString} template lain? (Ketik: Ya/Tidak)`
-
-			const input2 = await awaitSingleMessage(msg, filterCondition, qTxt2)
-			const isAgain = input2.toLowerCase() === 'ya'
-
-			if (isAgain) {
-				if (optionString === 'hapus') newIndex--
-				if (templates.length < 1) return msg.channel.send('Template Server ini kosong')
-				console.log(newIndex, option, embed)
-				renderEmbed(msg, templates, newIndex, embed, option)
-				return
-			}
-
-			msg.channel.send('Selesai! Gunakan `,p template` untuk melihat dan memilih template yang akan digunakan')
+			msg.channel.send(`Selesai! Gunakan \`${prefix} template\` untuk melihat dan memilih template yang akan digunakan`)
 			return
 
 		case '❌':
@@ -230,13 +211,18 @@ async function awaitTemplateReaction(msg, templates, index, embed, option) {
 }
 
 async function awaitSingleMessage(msg, filter, questionTxt) {
-	msg.client.isProcessOn.set(msg.author.id, true)
+	let channels = await msg.client.processOn.get(msg.author.id)
+	if (!channels) channels = []
+	msg.client.processOn.set(msg.author.id, [ ...channels, msg.channel.id ])
+
 	const questionMsg = await msg.channel.send(questionTxt)
 	const input = await msg.channel.awaitMessages(filter, { max: 1 }).then(collected => Promise.resolve(collected.first()))
 
 
 	questionMsg.delete()
-	msg.client.isProcessOn.set(msg.author.id, false)
+	let newChannels = await msg.client.processOn.get(msg.author.id)
+	msg.client.processOn.set(msg.author.id, newChannels.filter(c => c !== msg.channel.id))
+
 	if (input.content.toLowerCase() === 'exit') return Promise.reject('**Proses Dihentikan**')
 	input.delete()
 	return Promise.resolve(input.content)

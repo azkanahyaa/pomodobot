@@ -2,19 +2,26 @@ const { getPomodDB } = require('../db')
 const { MessageEmbed } = require('discord.js')
 const Canvas = require('canvas')
 
+let prefix = process.env.PREFIX
+
 module.exports = {
 	name: 'pomodoro',
-	description: 'melihat pengaturan pomodoro, atau memulai hitung mundur',
+	description: 'Menampilkan pengaturan pomodoro di channel pengguna. Kamu hanya bisa menggunakan command ini saat berada di voice channel pomodoro',
 	aliases: [ 'pmd', 'pomod' ],
+	usages: [ `${prefix} pomodoro`, `${prefix} pomodoro <focus | break | start>` ],
+	examples: [ `${prefix} pomodoro`, `${prefix} pmd focus`, `${prefix} pomod start` ],
   async execute(msg, args) {
 		const member = msg.guild.members.cache.get(msg.author.id)
 		const config = msg.client.pomodoro.get(member.voice.channelID)
 
 		if (!config) return msg.channel.send('Kamu harus membuat voice channel pomodoro untuk mengguanakan command ini')
 
-		if (!config.interval && args[0] === 'end') {
+		if (config.interval) {
+			if (args[0] !== 'end' && args.length < 1) return msg.channel.send(`Pomodoro di channelmu masih berjalan. Gunakan \`${prefix} pomodoro end\` atau buat ulang voice pomodoro untuk memulai pomodoro kembali`)
 			clearInterval(config.interval)
+			config.embed.unpin()
 			msg.channel.send('Pomodoro dihentikan')
+			channel.client.pomodoro.set(channel.id, { ...config, interval: false })
 			return
 		}
 
@@ -30,11 +37,13 @@ module.exports = {
 			if (args[0] === 'start') {
 				loop = config.settings[2]
 			}
+			let autoFocus = false
+			if (loop > 1) autoFocus = true
 			
 			if (config.host.id !== msg.author.id) return msg.channel.send('Kamu bukan host pomodoro di channel ini')
 
 			const embed = new MessageEmbed()
-				.setColor('#347C7C')
+				.setColor('#73cfff')
 				.addFields(
 					{ name: 'Host', value: config.host, inline: false },
 					{ name: 'Channel', value: `${config.channel}`, inline: false },
@@ -43,14 +52,14 @@ module.exports = {
 				)
 			const embedMsg = await msg.channel.send(embed)
 
-			countDown(config, isStart, loop, embedMsg)
+			countDown(config, isStart, loop, embedMsg, autoFocus)
 			return	
 		}
 
 		const pomodEmbed = new MessageEmbed()
-			.setColor('#347C7C')
+			.setColor('#73cfff')
 			.setTitle(`Pengaturan Pomodoro di ${config.channel.name}`)
-			.setDescription('> Mulai: `,p pomodoro <focus|break|start>`\n> Atur: `,p set <focus|break|loop> <durasi>`')
+			.setDescription(`> Mulai: \`${prefix} pomodoro <focus|break|start>\`\n> Atur: \`${prefix} set <focus|break|loop> <durasi>\``)
 			.addFields(
 				{ name: '🔴 Durasi Fokus', value: `${settings[0]} menit`, inline: true },
 				{ name: '🔵 Durasi Istirahat', value: `${settings[1]} menit`, inline: true },
@@ -61,10 +70,8 @@ module.exports = {
 	}
 }
 
-async function countDown(config, isStart, loop, embed) {
+async function countDown(config, isStart, loop, embed, autoFocus) {
 	const { channel, settings, host } = config
-	let autoFocus = false
-	if (loop > 1) autoFocus = true
 	
 	let duration = settings[0]
 	let mode = `🔴 Fokus [${settings[0]}]~${settings[1]}`
@@ -76,10 +83,17 @@ async function countDown(config, isStart, loop, embed) {
 	}
 
 	channel.setName(mode)
+	embed.pin()
+
 	const endTime = new Date().getTime() + duration * 1000 * 60
 	const counting = setInterval(() => {
-		channel.client.pomodoro.set(channel.id, { ...config, interval: counting })
-		if (channel.deleted) return embed.edit('Voice channel tidak ditemukan. Pomodoro dihentikan')
+		channel.client.pomodoro.set(channel.id, { ...config, interval: counting, embed })
+		if (channel.deleted) {
+			clearInterval(counting)
+			embed.unpin()
+			channel.client.pomodoro.delete(channel.id)
+			embed.edit('Voice channel tidak ditemukan. Pomodoro dihentikan')
+		}
 		const now = new Date().getTime()
 		const timeLeft = endTime - now
 
@@ -95,37 +109,23 @@ async function countDown(config, isStart, loop, embed) {
 
 		if (timeLeft <= 0) {
 			const nextLoop = loop - 1
+			let session = mode.split(' ')[1]
 			clearInterval(counting)
-			embed.edit(`${mode.split(' ')[1]} selesai ${host} <:me:850385320230780949>`)
+			embed.delete()
+			channel.client.pomodoro.set(channel.id, { ...config })
 
-			if (autoFocus && nextLoop === 0) embed.edit(`Pomodoro di channel ${channel.name} selesai`)
+			embed.channel.send(`${mode.split(' ')[1]} selesai ${host} <:aru_Woaah:766703813427593216>`).then(newEmbed => {
+				if (autoFocus && nextLoop === 0)  {
+					embed.edit(`Pomodoro di channel ${channel.name} selesai`)
+					channel.setName(`✅ ${settings[0]}~${settings[1]} Selesai`)
+					session = 'completed'
+				}
 
-			channel.client.alarm.set(channel.id, channel)
+				channel.client.alarm.set(channel.id, { channel, session })
 
-			if (nextLoop <= 0) return 
-			countDown(config, !isStart, nextLoop, embed)
+				if (nextLoop <= 0) return 
+				countDown(config, !isStart, nextLoop, newEmbed, autoFocus)
+			})
 		}
 	}, 5000)
 }
-/*
-- ,p pomodoro <start | break | autostart>
-  ~ start: 
-   + create endTime (getTime() + focus * 1000 * 60)
-   + startInterval, create nowTime
-   + clear Interval if endTime < now, change voice name
-  ~ break: 
-   + create endTime (getTime() + focus * 1000 * 60)
-   + startInterval, create nowTime
-   + clear Interval if endTime < now, change voice name
-  ~ autostart: 
-   + start loop
-   + create endTime (getTime() + focus * 1000 * 60)
-   + startInterval, create nowTime
-   + clear Interval if endTime < now, change voice name
-- ,p set focus <durasi fokus dalam satuan menit>
-- ,p set break <durasi jeda>
-- ,p set loop <jumlah pengulangan>
-
-init function { channel, duration, loop }
-function { startInterval until end }
-*/
