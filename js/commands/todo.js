@@ -15,7 +15,6 @@ module.exports = {
 		const userTemplates = new Map(await getUserTemplateDB(msg.author.id))
 		const templateID = await userTemplates.get(msg.guild.id)
 
-		console.log(templateID)
 
 		console.log(todoData)
 
