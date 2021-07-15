@@ -30,7 +30,7 @@ module.exports = {
 					case '🌀':
 						getTodoDB(msg.author.id).then(todo => {
 							m.delete()
-							if (!todo) return addTodoList(msg)
+							if (todo.length < 1) return addTodoList(msg)
 
 							addTodoList(msg, todo)
 						})
@@ -84,44 +84,56 @@ module.exports = {
 		const filterNumbers = m => filterAuthor(m) && ( filterExit(m)  || m.content.split(',').every(num => eval(num) !== isNaN) )
 	
 
-		async function addTodoList(msg, todo) {
-			if (!todo) {
-				todo = {
-					user: msg.author.id,
-					stickers: null,
-					template: null,
-					reset: '10.00 wib',
-					list: []
+		async function addTodoList(msg, data) {
+			try {
+				let todo = data
+				if (!todo) {
+					todo = {
+						user: msg.author.id,
+						stickers: null,
+						template: null,
+						reset: '10.00 wib',
+						list: []
+					}
 				}
+
+				console.log(todo)
+
+				const qTxt1 = `**<@${msg.author.id}>, silahkan Masukkan Todo List Kamu hari ini**. Gunakan \`enter\` (baris baru) untuk memasukkan lebih dari 1 list sekaligus\n\`\`\`\nContoh:\n**(04.00-07.00)** Rutinitas pagi\n**(07.00-11.00)** Sekolah Online\nIstirahat siang\nEkskul *Tata Boga*\n\`\`\``
+				const input1 = await awaitSingleMessage(msg, filterAuthor, qTxt1)
+				const todoInput = input1.split('\n').map(item => [ 0, item ])
+
+				let newList = todoInput
+				if (todo.list.length > 0) newList = [ ...todo.list, ...todoInput]
+
+				const qTxt2 = new MessageEmbed()
+					.setColor('#73cfff')
+					.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
+					.setDescription(`> Apakah Kamu ingin menambah to do list lagi? **(Ketik: Ya/Tidak)**\n▫️ ${newList.map(item => item[1]).join('\n▫️ ')}\n`)
+
+				const input2 = await awaitSingleMessage(msg, filterCondition, qTxt2)
+				const isAddAgain = input2.toLowerCase() === 'ya'
+			
+				if (isAddAgain) {
+					addTodoList(msg, newList)
+					return
+				}
+			
+				let todoEmbed = new MessageEmbed()
+					.setColor('#73cfff')
+					.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
+					.setTitle(`DAILY TO DO LIST`)
+					.setDescription(`▫️ ${newList.map(item => item[1]).join('\n▫️ ')}`)
+					.setFooter(`gunakan \`${prefix} todo\` untuk melihat list`)
+				msg.channel.send(todoEmbed)
+
+				todo.list = newList
+				console.log(todo)
+				updateTodoDB(msg.author.id, todo)
+			} catch(err) {
+				console.log(err.message)
+				console.log(err.stack)
 			}
-
-			const qTxt1 = `**<@${msg.author.id}>, silahkan Masukkan Todo List Kamu hari ini**. Gunakan \`enter\` (baris baru) untuk memasukkan lebih dari 1 list sekaligus\n\`\`\`\nContoh:\n**(04.00-07.00)** Rutinitas pagi\n**(07.00-11.00)** Sekolah Online\nIstirahat siang\nEkskul *Tata Boga*\n\`\`\``
-			const input1 = await awaitSingleMessage(msg, filterAuthor, qTxt1)
-			const todoInput = input1.split('\n')
-
-			todo.list = [ ...todo.list, ...todoInput]
-
-			const qTxt2 = new MessageEmbed()
-				.setColor('#73cfff')
-				.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
-				.setDescription(`> Apakah Kamu ingin menambah to do list lagi? **(Ketik: Ya/Tidak)**\n▫️ ${todo.list.join('\n▫️ ')}\n`)
-
-			const input2 = await awaitSingleMessage(msg, filterCondition, qTxt2)
-			const isAddAgain = input2.toLowerCase() === 'ya'
-		
-			if (isAddAgain) {
-				addTodoList(msg, newTodo)
-				return
-			}
-		
-			let todoEmbed = new MessageEmbed()
-				.setColor('#73cfff')
-				.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
-				.setTitle(`DAILY TO DO LIST`)
-				.setDescription(`▫️ ${todo.list.join('\n▫️ ')}`)
-				.setFooter(`gunakan \`${prefix} todo\` untuk melihat list`)
-			msg.channel.send(todoEmbed)
-			updateTodoDB(msg.author.id, todo)
 		}
 		
 		async function removeTodoList(msg, todoList) {
@@ -226,7 +238,11 @@ module.exports = {
 			msg.client.processOn.set(msg.author.id, [ ...channels, msg.channel.id ])
 		
 			const questionMsg = await msg.channel.send(questionTxt)
-			const input = await msg.channel.awaitMessages(filter, { max: 1 }).then(collected => Promise.resolve(collected.first()))
+			const input = await msg.channel.awaitMessages(filter, { max: 1, idle: 600000 }).then(collected => {
+				return Promise.resolve(collected.first())
+			}).catch(err => {
+				questionMsg.edit('Proses dihentikan setelah 10 menit tidak aktif')
+			})
 		
 		
 			questionMsg.delete()

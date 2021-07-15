@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js')
-const { getTodoDB, getCompletionDB, getTemplateDB, getUserTemplateDB,updateCompletionDB } = require('../db')
+const { getTodoDB, updateTodoDB, getCompletionDB, getTemplateDB, getUserTemplateDB,updateCompletionDB } = require('../db')
 
 let prefix = process.env.PREFIX
 
@@ -11,15 +11,19 @@ module.exports = {
 	examples: [ `${prefix} todo`, `${prefix} todo 1 ongoing`, `${prefix} td 4 done`, `${prefix} daily 6 fail` ],
   async execute(msg, args) {
 		let todoData = await getTodoDB(msg.author.id)
-		let completions = await getCompletionDB(msg.author.id)
 		const serverTemplates = new Map(await getTemplateDB(msg.guild.id))
 		const userTemplates = new Map(await getUserTemplateDB(msg.author.id))
 		const templateID = await userTemplates.get(msg.guild.id)
 
-		console.log(templateID)
 
-		if (!todoData) todoData = []
-		if (todoData.length < 1) return msg.channel.send(`todo list kamu kosong nih. Silahkan gunakan \`${prefix} setup todo\` untuk mengatur list kamu`)
+		console.log(todoData)
+
+		if (!todoData) todoData.list = []
+		if (todoData.list.length < 1) return msg.channel.send(`todo list kamu kosong nih. Silahkan gunakan \`${prefix} setup todo\` untuk mengatur list kamu`)
+
+		todoStat = todoData.list.map(item => item[0])
+		todoDesc = todoData.list.map(item => item[1])
+		
 		const argsOption = [ 'default', 'ongoing', 'done', 'fail' ]
 		let template = [ '🔸', '🔹', '✅', '📛' ]
 
@@ -35,16 +39,16 @@ module.exports = {
 
 			if (completionInput < 0) return msg.channel.send(' hanya dapat menggunakan `default`, `ongoing`, `done`, atau `fail`')
 
-			completions[editIndex] = completionInput
+			todoData.list[editIndex][0] = completionInput
+			todoStat[editIndex] = completionInput
 
-			if (completions < 0) return msg.channel.send('masukkan argumen dengan benar')
-			updateCompletionDB(msg.author.id, completions)
+			updateTodoDB(msg.author.id, todoData)
 		}
 
 		const userNickname = msg.author.tag
 
-		const embedDesc = todoData.map((item, index) => {
-			const itemCompletion = completions[index]
+		const embedDesc = todoDesc.map((item, index) => {
+			const itemCompletion = todoStat[index]
 			return `${template[itemCompletion]} ${item} *(${index + 1})*`
 		})
 
@@ -55,6 +59,5 @@ module.exports = {
 			.setDescription(embedDesc)
 			.setFooter(`gunakan \`${prefix} set todo\` untuk mengedit list`, 'https://cdn.discordapp.com/icons/578618709325774849/a_8cdb592b5442e78f89a15d94277ba3da.gif')
 		msg.channel.send(todoEmbed)
-		console.log(completions)
 	}
 }
