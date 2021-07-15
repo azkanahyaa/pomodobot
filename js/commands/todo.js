@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js')
-const { getTodoDB, getCompletionDB, getTemplateDB, getUserTemplateDB,updateCompletionDB } = require('../db')
+const { getTodoDB, updateTodoDB, getCompletionDB, getTemplateDB, getUserTemplateDB,updateCompletionDB } = require('../db')
 
 let prefix = process.env.PREFIX
 
@@ -17,8 +17,10 @@ module.exports = {
 
 		console.log(templateID)
 
-		if (!todoData) todoData = []
-		if (todoData.length < 1) return msg.channel.send(`todo list kamu kosong nih. Silahkan gunakan \`${prefix} setup todo\` untuk mengatur list kamu`)
+		console.log(todoData)
+
+		if (!todoData) todoData.list = []
+		if (todoData.list.length < 1) return msg.channel.send(`todo list kamu kosong nih. Silahkan gunakan \`${prefix} setup todo\` untuk mengatur list kamu`)
 
 		todoStat = todoData.list.map(item => item[0])
 		todoDesc = todoData.list.map(item => item[1])
@@ -38,10 +40,10 @@ module.exports = {
 
 			if (completionInput < 0) return msg.channel.send(' hanya dapat menggunakan `default`, `ongoing`, `done`, atau `fail`')
 
+			todoData.list[editIndex][0] = completionInput
 			todoStat[editIndex] = completionInput
 
-			if (todoStat < 0) return msg.channel.send('masukkan argumen dengan benar')
-			updateCompletionDB(msg.author.id, todoStat)
+			updateTodoDB(msg.author.id, todoData)
 		}
 
 		const userNickname = msg.author.tag
