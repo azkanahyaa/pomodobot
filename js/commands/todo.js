@@ -19,7 +19,7 @@ module.exports = {
 
 		console.log(todoData)
 
-		if (!todoData) todoData.list = []
+		if (!todoData.list) todoData = { list: [] }
 		if (todoData.list.length < 1) return msg.channel.send(`todo list kamu kosong nih. Silahkan gunakan \`${prefix} setup todo\` untuk mengatur list kamu`)
 
 		todoStat = todoData.list.map(item => item[0])
