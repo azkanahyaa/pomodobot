@@ -170,7 +170,7 @@ module.exports = {
 				const qTxt3 = new MessageEmbed()
 					.setColor('#73cfff')
 					.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
-					.setDescription(`> Apakah Kamu ingin menghapus to do list lagi? **(Ketik: Ya/Tidak)**\n▫️ ${todo.list.map(item => item[1]).join('\n▫️ ')}`)
+					.setDescription(`> Apakah Kamu ingin menghapus to do list lagi? **(Ketik: Ya/Tidak)**\n▫️ ${todo.list.join('\n▫️ ')}`)
 			
 				const input3 = await awaitSingleMessage(msg, filterCondition, qTxt3)
 				const isAddAgain = input3.toLowerCase() === 'ya'
@@ -213,7 +213,7 @@ module.exports = {
 					return
 				}
 			
-				const qTxt2 = `Masukkan to do baru untuk nomor ${inputNum}:\n\`${todo.list[itemNum][1]}\``
+				const qTxt2 = `Masukkan to do baru untuk nomor ${inputNum}:\n\`${todo.list[itemNum]}\``
 				const inputItem = await awaitSingleMessage(msg, filterOneLine, qTxt2)
 			
 				todo.list[itemNum][1] = inputItem
@@ -221,7 +221,7 @@ module.exports = {
 				const qTxt3 = new MessageEmbed()
 					.setColor('#73cfff')
 					.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
-					.setDescription(`> Apakah kamu ingin mengedit to do list yang lain? **(Ketik: Ya/Tidak)**\n▫️ ${todo.list.map(item => item[1]).join('\n▫️ ')}`)
+					.setDescription(`> Apakah kamu ingin mengedit to do list yang lain? **(Ketik: Ya/Tidak)**\n▫️ ${newTodoData.join('\n▫️ ')}`)
 			
 				const input3 = await awaitSingleMessage(msg, filterCondition, qTxt3)
 				const isAddAgain = input3.toLowerCase() === 'ya'
