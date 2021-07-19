@@ -291,22 +291,30 @@ function updatePmdChannelDB(key, data) {
 
 module.exports = { 
 	checkDB,
-	getRemindDB,
-	updateRemindDB,
-	getTodoDB,
-	updateTodoDB,
 	deleteDB,
 	removeDBItem,
+
+	getRemindDB,
+	updateRemindDB,
+
+	getTodoDB,
+	updateTodoDB,
+
 	getCompletionDB,
 	updateCompletionDB,
+
 	getTemplateDB,
 	updateTemplateDB,
+
 	getUserTemplateDB,
 	updateUserTemplateDB,
+
 	getPomodDB,
 	updatePomodDB,
+
 	getVipDB,
 	updateVipDB,
+
 	getPmdChannelDB,
 	updatePmdChannelDB
 }
