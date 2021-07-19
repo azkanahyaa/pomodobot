@@ -1,61 +1,53 @@
-const { checkDB, getTodoDB, getCompletionDB, removeDBItem, deleteDB } = require('../db')
+const { checkDB, updateTodoDB } = require('../db')
 const { MessageEmbed } = require('discord.js')
 
 
 function todoInterval(client) {
-	client.processOn.set('deletingTodo', false)
+	async function startReset(todo, delay) {
+		console.log(todo, delay)
+		setTimeout(() => {
+			let template = [ '🔸', '🔹', '✅', '📛' ]
 
-	async function cleanData(userID, todoList) {
-		let template = [ '🔸', '🔹', '✅', '📛' ]
-		const todoCompletion = await getCompletionDB(userID)
-		const finalCompletion = todoCompletion.map(value => {
-			if (value === 2) return 2
-			return 3
-		})
-
-		const embedDesc = todoList.map((item, index) => {
-			const itemCompletion = finalCompletion[index]
-			return `${template[itemCompletion]} ${item}`
-		})
-
-		const todoEmbed = new MessageEmbed()
-			.setColor('#73cfff')
-			.setTitle('> TO DO LIST DIRESET!')
-			.setDescription(embedDesc)
-			.setFooter('Jangan Lupa Untuk Mengatur To Do List Besok ya')
-
-		const user = await client.users.fetch(userID)
-		user.send(todoEmbed)
-
-		removeDBItem('todo', userID)
-		removeDBItem('completions', userID)
+			const embedDesc = todo.list.map(item => {
+				if (item[0] !== 2) item[0] = 3
+				return `${template[item[0]]} ${item[1]}`
+			}).join('\n')
+	
+			const todoEmbed = new MessageEmbed()
+				.setColor('#73cfff')
+				.setTitle('> TO DO LIST DIRESET!')
+				.setDescription(embedDesc)
+				.setFooter('Jangan Lupa Untuk Mengatur To Do List Besok ya')
+	
+			client.users.fetch(todo.user).then(user => {
+				user.send(todoEmbed)
+			})
+	
+			updateTodoDB(todo.user, { ...todo, list: [] })
+			startReset(todo, 1000 * 60 * 60 * 24)
+		}, delay)
 	}
 
-	let checkTime = setInterval(() => {
-		const hours = new Date().getHours()
-		const minutes = new Date().getMinutes()
-		if (hours !== 15 || (hours === 15 && minutes > 10)) return
+	checkDB('todo').then(allTodo => {
+		for (const todo of allTodo) {
+			if (!todo[1].reset) continue
 
-		if (minutes === 10) {
-			deleteDB('todo')
-			deleteDB('completions')
-		} 
+			const resetTime = todo[1].reset
 
-		checkDB('todo').then(users => {
-			if (users.length < 1) return
-			if (client.processOn.get('deletingTodo')) return
-			client.processOn.set('deletingTodo', true)
+			const d = new Date()
+			const hours = d.getHours()
+			const date = d.getDate()
+			
+			if (resetTime - hours < 0) d.setDate(date + 1)
+			d.setHours(resetTime)
+			d.setMinutes(0)
 
-			let index = 0
-			for (const user of users) {
-				cleanData(user[0], user[1])
-				index++
-				if (index === users.length) {
-					client.processOn.set('deletingTodo', false)
-				}
-			}
-		})
-	}, 1000) 
+			const now = new Date().getTime()
+			const end = d.getTime()
+
+			startReset(todo[1], end - now)
+		}
+	})
 }
 
 
