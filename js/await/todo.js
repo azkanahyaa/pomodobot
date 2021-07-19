@@ -8,6 +8,7 @@ function todoInterval(client) {
 		setTimeout(() => {
 			let template = [ '🔸', '🔹', '✅', '📛' ]
 
+			if (todo.list.length < 1) return startReset(todo, 1000 * 60 * 60 * 24)
 			const embedDesc = todo.list.map(item => {
 				if (item[0] !== 2) item[0] = 3
 				return `${template[item[0]]} ${item[1]}`
@@ -35,14 +36,13 @@ function todoInterval(client) {
 			const resetTime = todo[1].reset
 
 			const d = new Date()
-			const hours = d.getHours()
 			const date = d.getDate()
-			
-			if (resetTime - hours < 0) d.setDate(date + 1)
 			d.setHours(resetTime)
 			d.setMinutes(0)
 
 			const now = new Date().getTime()
+			if (d.getTime() - now < 0) d.setDate(date + 1)
+
 			const end = d.getTime()
 
 			startReset(todo[1], end - now)
