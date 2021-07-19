@@ -66,7 +66,14 @@ function getTodoDB(key) {
 		checkDB('todo').then(users => {
 			const todoMap = new Map(users)
 			if (users.length < 1) {
-				resolve([ ])
+				todo = {
+					user: msg.author.id,
+					sticker: null,
+					template: null,
+					reset: false,
+					list: []
+				}
+				resolve(todo)
 				return
 			}
 
