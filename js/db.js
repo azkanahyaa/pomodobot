@@ -100,100 +100,34 @@ function updateTodoDB(key, data) {
 	})
 }
 
-function getCompletionDB(key) {
+function getStickerDB(key) {
 	return new Promise((resolve, reject) => {
-		checkDB('completions').then(users => {
-			const completionsMap = new Map(users)
-			if (users.length < 1) {
-				resolve([ ])
-				return
-			}
-
-			resolve(completionsMap.get(key))
-			
-		})
-	})
-}
-
-function updateCompletionDB(key, data) {
-  return new Promise((resolve, reject) => {
-		checkDB('completions').then(users => {
-			const completionsMap = new Map(users)
-			
-			if (users.length < 1) {
-				db.set('completions', [ [key, data] ])
-				resolve('Data berhasil diubah')
-				return
-			}
-
-			completionsMap.set(key, data)
-			db.set('completions', Array.from(completionsMap))
-			resolve('Data berhasl diubah')
-		})
-	})
-}
-
-function getTemplateDB(key) {
-	return new Promise((resolve, reject) => {
-		checkDB('templates').then(servers => {
-			const templatesMap = new Map(servers)
+		checkDB('sticker').then(servers => {
+			const stickersMap = new Map(servers)
 			if (servers.length < 1) {
 				resolve([ ])
 				return
 			}
 
-			resolve(templatesMap.get(key))
+			resolve(stickersMap.get(key))
 			
 		})
 	})
 }
 
-function updateTemplateDB(key, data) {
+function updateStickerDB(key, data) {
   return new Promise((resolve, reject) => {
-		checkDB('templates').then(servers => {
-			const templatesMap = new Map(servers)
+		checkDB('sticker').then(servers => {
+			const stickersMap = new Map(servers)
 			
 			if (servers.length < 1) {
-				db.set('templates', [ [key, data] ])
+				db.set('sticker', [ [key, data] ])
 				resolve('Data berhasil diubah')
 				return
 			}
 
-			templatesMap.set(key, data)
-			db.set('templates', Array.from(templatesMap))
-			resolve('Data berhasl diubah')
-		})
-	})
-}
-
-function getUserTemplateDB(key) {
-	return new Promise((resolve, reject) => {
-		checkDB('userTemp').then(users => {
-			const usersMap = new Map(users)
-			if (users.length < 1) {
-				resolve([ ])
-				return
-			}
-
-			resolve(usersMap.get(key))
-			
-		})
-	})
-}
-
-function updateUserTemplateDB(key, data) {
-  return new Promise((resolve, reject) => {
-		checkDB('userTemp').then(users => {
-			const usersMap = new Map(users)
-			
-			if (users.length < 1) {
-				db.set('userTemp', [ [key, data] ])
-				resolve('Data berhasil diubah')
-				return
-			}
-
-			usersMap.set(key, data)
-			db.set('userTemp', Array.from(usersMap))
+			stickersMap.set(key, data)
+			db.set('sticker', Array.from(stickersMap))
 			resolve('Data berhasl diubah')
 		})
 	})
@@ -307,14 +241,8 @@ module.exports = {
 	getTodoDB,
 	updateTodoDB,
 
-	getCompletionDB,
-	updateCompletionDB,
-
-	getTemplateDB,
-	updateTemplateDB,
-
-	getUserTemplateDB,
-	updateUserTemplateDB,
+	getStickerDB,
+	updateStickerDB,
 
 	getPomodDB,
 	updatePomodDB,
