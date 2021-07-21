@@ -1,16 +1,16 @@
-const { getTemplateDB, getUserTemplateDB, updateUserTemplateDB } = require('../db.js')
+const { getStickerDB, getTodoDB, updateTodoDB } = require('../db.js')
 const { MessageEmbed } = require('discord.js')
 
 let prefix = process.en
 
 module.exports = {
-	name: 'template',
+	name: 'sticker',
 	description: 'Memilih template sticker to do list yang akan digunakan untuk menunjukan status to do list (default, onGoing, done, fail)',
 	aliases: [ 'tem', 'tpl', 'sticker' ],
 	usages: [ ',p template', ',p template <id>' ],
 	examples: [ ',p template', ',p tpl 2En75A' ],
   async execute(msg, args) {
-		const templates = await getTemplateDB(msg.guild.id)
+		const templates = await getStickerDB(msg.guild.id)
 		const templatesMap = new Map(templates)
 
 		if (templates.length < 1) return msg.channel.send('Template Server Kosong')
@@ -43,11 +43,9 @@ module.exports = {
 						return
 
 					case '✅':
-						getUserTemplateDB(msg.author.id).then(userTemplates => {
-							const userTemplatesMap = new Map(userTemplates)
-
-							userTemplatesMap.set(msg.guild.id, args[0])
-							updateUserTemplateDB(msg.author.id, Array.from(userTemplatesMap))
+						getTodoDB(msg.author.id).then(todo => {
+							todo.sticker = args[0]
+							updateTodoDB(msg.author.id, Array.from(userTemplatesMap))
 							embed.delete()
 							msg.channel.send('Template Berhasil diganti')
 						})
@@ -111,9 +109,9 @@ async function awaitTemplateReaction(msg, templates, index, embed) {
 			return
 		
 		case '✅':
-			const userTemplates = new Map(await getUserTemplateDB(msg.author.id))
-			userTemplates.set(msg.guild.id, templates[index][0])
-			updateUserTemplateDB(msg.author.id, Array.from(userTemplates))
+			let todoData = await getTodoDB(msg.author.id)
+			todoData.sticker = templates[index][0]
+			updateTodoDB(msg.author.id, todoData)
 			embed.delete()
 			msg.channel.send('Template Berhasil diganti')
 			return

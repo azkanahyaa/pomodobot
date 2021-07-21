@@ -6,10 +6,10 @@ const errChnl = process.env.ERRORLOG
 
 module.exports = {
 	name: 'todo',
-	execute(msg, args) {
+	async execute(msg, args) {
 		let userNickname = msg.member.nickname
 		if (userNickname === null) userNickname = msg.author.username
-		const settingsDesc = 'Tekan reaction di bawah untuk mengatur to do list anda:\n\n🌀 = `tambah list`\n🗑️ = `hapus beberapa list`\n📝 = `mengedit list`\n🔄 = `mengatur waktu autoreset`\n✅ = `selesai`'
+		const settingsDesc = 'Tekan reaction di bawah untuk mengatur to do list anda:\n\n🌀 = `tambah list`\n🗑️ = `hapus beberapa list`\n📝 = `mengedit list`\n🔄 = `mengatur autoreset`\n✅ = `selesai`'
 
 		const settingsEmbed = new MessageEmbed()
 			.setColor('#73cfff')
@@ -28,15 +28,6 @@ module.exports = {
 			const filter = (r, user) => embedReact.some(react => react === r.emoji.name) && user.id == msg.author.id
 			m.awaitReactions(filter, {max: 1, idle: 60000}).then(collected => {
 				getTodoDB(msg.author.id).then(todo => {
-					if (!todo.list) {
-						todo = {
-							user: msg.author.id,
-							sticker: null,
-							template: null,
-							reset: false,
-							list: []
-						}
-					}
 					switch (collected.first().emoji.name) {
 						case '🌀':
 							m.delete()
@@ -248,7 +239,7 @@ module.exports = {
 		}
 		
 		async function setReset(msg, todo) {
-			const qTxt1 = 'Apakah kamu ingin mengaktifkan reset to do list otomatis? **(ya/tidak)**'
+			const qTxt1 = 'Apakah kamu ingin menggunakan reset otomatis to do list? **(ya/tidak)**'
 			const input1 = await awaitSingleMessage(msg, filterCondition, qTxt1)
 			const isAuto = input1.toLowerCase() === 'ya'
 
