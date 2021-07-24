@@ -131,9 +131,8 @@ module.exports = {
 			} else {
 				console.log(err.stack)
 				const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
-				msg.client.channels.fetch(errChnl).then(c => {
-					c.send(errOutput)
-				})
+				const c = msg.guild.channels.cache.get(errChnl)
+				c.send(errOutput)
 			}
 		}
 		
@@ -189,12 +188,11 @@ module.exports = {
 				if (err.exit) {
 					msg.channel.send(err.message)
 				} else {
-					console.log(err.stack)
-					const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
-					msg.client.channels.fetch(errChnl).then(c => {
-						c.send(errOutput)
-					})
-				}
+				console.log(err.stack)
+				const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
+				const c = msg.guild.channels.cache.get(errChnl)
+				c.send(errOutput)
+			}
 			}
 		}
 		
@@ -242,12 +240,11 @@ module.exports = {
 				if (err.exit) {
 					msg.channel.send(err.message)
 				} else {
-					console.log(err.stack)
-					const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
-					msg.client.channels.fetch(errChnl).then(c => {
-						c.send(errOutput)
-					})
-				}
+				console.log(err.stack)
+				const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
+				const c = msg.guild.channels.cache.get(errChnl)
+				c.send(errOutput)
+			}
 			}
 		}
 		

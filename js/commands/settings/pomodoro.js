@@ -129,9 +129,8 @@ module.exports = {
 			} else {
 				console.log(err.stack)
 				const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
-				msg.client.channels.fetch(errChnl).then(c => {
-					c.send(errOutput)
-				})
+				const c = msg.guild.channels.cache.get(errChnl)
+				c.send(errOutput)
 			}
 		}
 	}
@@ -159,8 +158,9 @@ async function awaitSingleMessage(msg, filter, questionTxt) {
 		input.delete()
 		return Promise.resolve(input.content)
 	} catch(err) {
-		msg.client.channels.fetch(errChnl).then(c => {
-			c.send(err.message)
-		})
+		console.log(err.stack)
+		const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
+		const c = msg.guild.channels.cache.get(errChnl)
+		c.send(errOutput)
 	}
 }
