@@ -51,17 +51,17 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 			embed: null, 
 			endTime: null
 		})
-		
+
 		client.pomodoro.set(channel.id, { host: newState.member, settings: settings, channel: channel })
 		updatePomodDB(newState.guild.id, pomodData)
 	}
 	
 	const config = client.pomodoro.get(oldState.channelID)
-	const { channel,  settings } = config
+	const { channel, newSettings } = config
 
 	if (!channel) return
 
-	if (oldState.selfMute !== newState.selfMute && settings.silent === 2) {
+	if (oldState.selfMute !== newState.selfMute && newSettings.silent === 2) {
 		if (newState === true) {
 			newState.member.send('Hallo, yang lain sedang fokus di ' + channel.name + ' nih. Jangan sampai mengganggu yang lain ya <:aru_mau_itu:790277212275867698>')
 		}
