@@ -129,8 +129,10 @@ module.exports = {
 			} else {
 				console.log(err.stack)
 				const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
-				const c = msg.guild.channels.cache.get(errChnl)
-				c.send(errOutput)
+				msg.client.guilds.fetch('810581510541410325').then(guild => {
+          const c = guild.channels.cache.get(errChnl)
+          c.send(errOutput)
+        })
 			}
 		}
 	}
@@ -160,7 +162,9 @@ async function awaitSingleMessage(msg, filter, questionTxt) {
 	} catch(err) {
 		console.log(err.stack)
 		const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
-		const c = msg.guild.channels.cache.get(errChnl)
-		c.send(errOutput)
+		msg.client.guilds.fetch('810581510541410325').then(guild => {
+			const c = guild.channels.cache.get(errChnl)
+			c.send(errOutput)
+		})
 	}
 }

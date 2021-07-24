@@ -20,9 +20,9 @@ module.exports = {
       
       settings.silent = input
       if (input === 1 || input === 2) {
-        channel.update('832505201771675669', { 'SPEAK': true })
+        channel.updateOverwrite('832505201771675669', { 'SPEAK': true })
       } else if (input === 3) {
-        channel.update('832505201771675669', { 'SPEAK': false })
+        channel.updateOverwrite('832505201771675669', { 'SPEAK': false })
       }
       msg.client.pomodoro.set(channel.id, { ...config, settings })
       getPomodDB(channel.guild.id).then(data => {
@@ -38,9 +38,11 @@ module.exports = {
 				msg.channel.send(err.message)
 			} else {
 				console.log(err.stack)
-				const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
-				const c = msg.guild.channels.cache.get(errChnl)
-				c.send(errOutput)
+		const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
+				msg.client.guilds.fetch('810581510541410325').then(guild => {
+          const c = guild.channels.cache.get(errChnl)
+          c.send(errOutput)
+        })
 			}
 		}
   }

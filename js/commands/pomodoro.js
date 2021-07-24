@@ -109,9 +109,11 @@ module.exports = {
 				msg.channel.send(err.message)
 			} else {
 				console.log(err.stack)
-				const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
-				const c = msg.guild.channels.cache.get(errChnl)
-				c.send(errOutput)
+		const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
+				msg.client.guilds.fetch('810581510541410325').then(guild => {
+          const c = guild.channels.cache.get(errChnl)
+          c.send(errOutput)
+        })
 			}
 		}
 	}
@@ -140,9 +142,11 @@ function play(channel, session) {
 			msg.channel.send(err.message)
 		} else {
 			console.log(err.stack)
-			const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
-			const c = msg.guild.channels.cache.get(errChnl)
-			c.send(errOutput)
+		const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
+			msg.client.guilds.fetch('810581510541410325').then(guild => {
+				const c = guild.channels.cache.get(errChnl)
+				c.send(errOutput)
+			})
 		}
 	}
 }
@@ -242,9 +246,11 @@ async function countDown(config, embed, loop, isUseLB) {
 			msg.channel.send(err.message)
 		} else {
 			console.log(err.stack)
-			const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
-			const c = msg.guild.channels.cache.get(errChnl)
-			c.send(errOutput)
+		const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
+			msg.client.guilds.fetch('810581510541410325').then(guild => {
+				const c = guild.channels.cache.get(errChnl)
+				c.send(errOutput)
+			})
 		}
 	}
 }
