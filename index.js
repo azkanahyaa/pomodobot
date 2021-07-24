@@ -51,6 +51,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 			embed: null, 
 			endTime: null
 		})
+		
 		client.pomodoro.set(channel.id, { host: newState.member, settings: settings, channel: channel })
 		updatePomodDB(newState.guild.id, pomodData)
 	}
