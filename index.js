@@ -52,13 +52,13 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 			endTime: null
 		})
 
-		client.pomodoro.set(channel.id, { host: newState.member, settings: settings, channel: channel })
+		client.pomodoro.set(channel.id, { host: newState.member.user, settings: settings, channel: channel })
 		updatePomodDB(newState.guild.id, pomodData)
 	}
 	
 	const config = client.pomodoro.get(oldState.channelID)
 
-	if (!config) return
+	if (!channel) return
 	const { channel } = config
 	const newSettings = config.settings
 
