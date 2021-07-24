@@ -198,38 +198,6 @@ function updateVipDB(key, data) {
 	})
 }
 
-function getPmdChannelDB(key) {
-	return new Promise((resolve, reject) => {
-		checkDB('pmdChannel').then(channels => {
-			const channelsMap = new Map(servers)
-			if (channels.length < 1) {
-				resolve([ ])
-				return
-			}
-
-			resolve(channelsMap.get(key))
-		})
-	})
-}
-
-function updatePmdChannelDB(key, data) {
-  return new Promise((resolve, reject) => {
-		checkDB('pmdChannel').then(channels => {
-			const channelsMap = new Map(channels)
-			
-			if (channels.length < 1) {
-				db.set('pmdChannel', [ [key, data] ])
-				resolve('Data berhasil diubah')
-				return
-			}
-
-			channelsMap.set(key, data)
-			db.set('pmdChannel', Array.from(channelsMap))
-			resolve('Data berhasl diubah')
-		})
-	})
-}
-
 module.exports = { 
 	checkDB,
 	deleteDB,
@@ -249,7 +217,4 @@ module.exports = {
 
 	getVipDB,
 	updateVipDB,
-
-	getPmdChannelDB,
-	updatePmdChannelDB
 }

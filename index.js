@@ -3,14 +3,14 @@ const onlineBot = require("./server")
 const Discord = require('discord.js')
 const { awaitReminderMessage, checkReminder } = require('./js/await/reminder')
 const { todoInterval } = require('./js/await/todo')
-const { alarmInterval } = require('./js/await/alarm')
-const { getPomodDB } = require('./js/db')
+const { backupPmd } = require('./js/await/pomodoro')
+const { getPomodDB, updatePomodDB } = require('./js/db')
 
 const client = new Discord.Client()
 client.commands = new Discord.Collection()
 client.processOn = new Discord.Collection()
 client.pomodoro = new Discord.Collection()
-client.alarm = new Discord.Collection()
+client.inVoice = new Discord.Collection()
 
 let prefix = process.env.PREFIX
 
@@ -26,31 +26,49 @@ client.on('ready', () => {
   client.user.setActivity(`discord.gg/ruangbelajar`, { type: 'WATCHING' })
 	checkReminder(client)
 	todoInterval(client)
-	alarmInterval(client)
+	backupPmd(client)
 })
 
 client.on('voiceStateUpdate', async (oldState, newState) => {
-	const guildSettings = await getPomodDB(newState.guild.id)
-	const { id, settings } = guildSettings
+	const pomodData = await getPomodDB(newState.guild.id)
+	const { initialChnl, settings, pomodoro } = pomodData
 
-	if (!guildSettings) return
-	if (newState.channelID === id) {		
+	if (!pomodData) return
+	if (newState.channelID === initialChnl) {		
 		const option = {
 			type: 'voice',
 			parent: newState.channel.parent,
 			position: newState.channel.parent.children.length + 1,
+			bitrate: 16000
 		}
-		const channel = await newState.guild.channels.create(`🟡 Pomodoro #${Array.from(client.pomodoro).length + 1}`, option)
+		const channel = await newState.guild.channels.create(`🟡 Pomodoro #${pomodoro.length + 1}`, option)
 
 		newState.setChannel(channel)
+		pomodoro.push({ 
+			host: newState.id, 
+			channel: channel.id, 
+			settings, 
+			embed: null, 
+			endTime: null
+		})
 		client.pomodoro.set(channel.id, { host: newState.member, settings: settings, channel: channel })
+		updatePomodDB(newState.guild.id, pomodData)
 	}
 	
-	const channel = client.pomodoro.get(oldState.channelID)
+	const config = client.pomodoro.get(oldState.channelID)
+	const { channel,  settings } = config
+
 	if (!channel) return
-	if (Array.from(oldState.channel.members).length < 1) {
+
+	if (oldState.selfMute !== newState.selfMute && settings.silent === 2) {
+		if (newState === true) {
+			newState.member.send('Hallo, yang lain sedang fokus di ' + channel.name + ' nih. Jangan sampai mengganggu yang lain ya <:aru_mau_itu:790277212275867698>')
+		}
+	} else if (Array.from(oldState.channel.members).length < 1) {
 		oldState.channel.delete().then(() => {
 			client.pomodoro.delete(oldState.channelID)
+			pomodData.pomodoro = pomodoro.filter(p => p.channel !== oldState.channelID)
+			updatePomodDB(oldState.guild.id, pomodData)
 		})
 	}
 })

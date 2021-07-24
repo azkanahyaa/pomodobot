@@ -93,12 +93,12 @@ module.exports = {
 		async function addTemplate(msg, templates, spcID = false) {
 			try {
 				const templatesMap = new Map(templates)
-				const {  }
 		
 				const todoOptions = [ 'default', 'onGoing', 'Completed (done)', 'Uncompleted (fail)' ]
 			
 				let newTemplate = {
 					name: 'template',
+					vip: false,
 					sticker: [ ]
 				}
 			
@@ -115,6 +115,10 @@ module.exports = {
 				const qTxt2 = `Masukkan nama dari template ini`
 				newTemplate.name = await awaitSingleMessage(msg, filterOneLine, qTxt2)
 			
+				const qTxt3 = `Masukkan nama dari template ini`
+				const inputVip = await awaitSingleMessage(msg, filterCondition, qTxt3)
+				newTemplate.vip = inputVip === 'ya'
+
 				let templateID = spcID
 			
 				if (!spcID) {
