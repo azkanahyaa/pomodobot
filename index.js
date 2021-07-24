@@ -58,7 +58,7 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 	
 	const config = client.pomodoro.get(oldState.channelID)
 
-	if (!channel) return
+	if (!config) return
 	const { channel } = config
 	const newSettings = config.settings
 
