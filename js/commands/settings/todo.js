@@ -9,7 +9,7 @@ module.exports = {
 	execute(msg, args) {
 		let userNickname = msg.member.nickname
 		if (userNickname === null) userNickname = msg.author.username
-		const settingsDesc = 'Tekan reaction di bawah untuk mengatur to do list anda:\n\n🌀 = `tambah list`\n🗑️ = `hapus beberapa list`\n📝 = `mengedit list`\n🔄 = `mengatur waktu autoreset`\n✅ = `selesai`'
+		const settingsDesc = 'Tekan reaction di bawah untuk mengatur to do list anda:\n\n🌀 = `tambah list`\n🗑️ = `hapus beberapa list`\n📝 = `mengedit list`\n🔄 = `mengatur autoreset`\n✅ = `selesai`'
 
 		const settingsEmbed = new MessageEmbed()
 			.setColor('#73cfff')
@@ -28,15 +28,6 @@ module.exports = {
 			const filter = (r, user) => embedReact.some(react => react === r.emoji.name) && user.id == msg.author.id
 			m.awaitReactions(filter, {max: 1, idle: 60000}).then(collected => {
 				getTodoDB(msg.author.id).then(todo => {
-					if (!todo.list) {
-						todo = {
-							user: msg.author.id,
-							sticker: null,
-							template: null,
-							reset: false,
-							list: []
-						}
-					}
 					switch (collected.first().emoji.name) {
 						case '🌀':
 							m.delete()
@@ -170,7 +161,7 @@ module.exports = {
 				const qTxt3 = new MessageEmbed()
 					.setColor('#73cfff')
 					.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
-					.setDescription(`> Apakah Kamu ingin menghapus to do list lagi? **(Ketik: Ya/Tidak)**\n▫️ ${todo.list.map(item => item[1]).join('\n▫️ ')}`)
+					.setDescription(`> Apakah Kamu ingin menghapus to do list lagi? **(Ketik: Ya/Tidak)**\n▫️ ${todo.list.join('\n▫️ ')}`)
 			
 				const input3 = await awaitSingleMessage(msg, filterCondition, qTxt3)
 				const isAddAgain = input3.toLowerCase() === 'ya'
@@ -213,7 +204,7 @@ module.exports = {
 					return
 				}
 			
-				const qTxt2 = `Masukkan to do baru untuk nomor ${inputNum}:\n\`${todo.list[itemNum][1]}\``
+				const qTxt2 = `Masukkan to do baru untuk nomor ${inputNum}:\n\`${todo.list[itemNum]}\``
 				const inputItem = await awaitSingleMessage(msg, filterOneLine, qTxt2)
 			
 				todo.list[itemNum][1] = inputItem
@@ -221,7 +212,7 @@ module.exports = {
 				const qTxt3 = new MessageEmbed()
 					.setColor('#73cfff')
 					.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
-					.setDescription(`> Apakah kamu ingin mengedit to do list yang lain? **(Ketik: Ya/Tidak)**\n▫️ ${todo.list.map(item => item[1]).join('\n▫️ ')}`)
+					.setDescription(`> Apakah kamu ingin mengedit to do list yang lain? **(Ketik: Ya/Tidak)**\n▫️ ${newTodoData.join('\n▫️ ')}`)
 			
 				const input3 = await awaitSingleMessage(msg, filterCondition, qTxt3)
 				const isAddAgain = input3.toLowerCase() === 'ya'
@@ -248,7 +239,7 @@ module.exports = {
 		}
 		
 		async function setReset(msg, todo) {
-			const qTxt1 = 'Apakah kamu ingin mengaktifkan reset to do list otomatis? **(ya/tidak)**'
+			const qTxt1 = 'Apakah kamu ingin menggunakan reset otomatis to do list? **(ya/tidak)**'
 			const input1 = await awaitSingleMessage(msg, filterCondition, qTxt1)
 			const isAuto = input1.toLowerCase() === 'ya'
 
