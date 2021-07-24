@@ -190,6 +190,8 @@ async function checkQueue(client, serverID, config, reminder) {
 
 	config.queue.filter(item => item.id !== reminder.id)
 
+	const now = new Date().getTime()
+
 	if (reminder.loop) {
 		const nextLoop = { ...reminder, time: reminder.time + reminder.loop }
 		config.queue.push(nextLoop)
