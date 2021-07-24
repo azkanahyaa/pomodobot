@@ -67,7 +67,7 @@ function getTodoDB(key) {
 			const todoMap = new Map(users)
 			if (users.length < 1) {
 				todo = {
-					user: msg.author.id,
+					user: key,
 					sticker: null,
 					template: null,
 					reset: false,
