@@ -57,9 +57,10 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 	}
 	
 	const config = client.pomodoro.get(oldState.channelID)
-	const { channel, newSettings } = config
 
 	if (!channel) return
+	const { channel } = config
+	const newSettings = config.settings
 
 	if (oldState.selfMute !== newState.selfMute && newSettings.silent === 2) {
 		if (newState === true) {
