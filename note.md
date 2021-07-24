@@ -1,34 +1,28 @@
-# Pomodoro
+#  TODO
 
 ## Struktur Data
 
-> key : idChannel
+**Key**
+users id
 
-> Object
-{
-  host, channel, settings, interval, embed, endTime
+**Object**
+{\
+  id: `user id`\
+  sticker: `sticker id` \
+  template: `template id`\
+  reset: `reset time`\
+  todo:  `[ [status, desc], ... ]`\
 }
 
-## Flow Code
+## Sticker Flow
+- Server Set Sticker `,a set sticker`
+- User Choose Template `,a Sticker`
+- Data Structure: *id, name, stickers, vip*
 
-- create channel and data
-- add to discord collection
-- add interval, endTime, and Embed if pmd start (addDB)
-- clear if pmd done (clearDB)
-
-- if restart put DB
-- run interval with the 
-
-> change DB in { channel Created, pmd start, pmd end }
-
-
-initial Channel: channelId
-default: 
-- focus
-- short break
-- long break
-- loop
-- interval
----
-- limit
-- silent lv
+## Template Flow
+- Global Template `,a template global` | `,a template id` | `,a template @mentions`
+- User Upload, edit, unpublish Template `,a template`: used, mine
+- User choose Template `,a set template`
+- User Edit Template if user want
+- Record Template Users
+- Data Structure: *id, name, author, template, users*

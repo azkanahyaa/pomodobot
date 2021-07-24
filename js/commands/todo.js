@@ -35,15 +35,13 @@ module.exports = {
 			}
 
 			if (args.length >= 2) {
-				const editIndex = args.map(num => parseInt(num) - 1)
-				const completionInput = argsOption.indexOf(args[0])
+				const editIndex = eval(args[0]) - 1
+				const completionInput = argsOption.indexOf(args[1])
 
 				if (completionInput < 0) return msg.channel.send(' hanya dapat menggunakan `default`, `ongoing`, `done`, atau `fail`')
 
-				for (const index of editIndex) {
-					todoData.list[index][0] = completionInput
-					todoStat[index] = completionInput
-				}
+				todoData.list[editIndex][0] = completionInput
+				todoStat[editIndex] = completionInput
 
 				updateTodoDB(msg.author.id, todoData)
 			}
