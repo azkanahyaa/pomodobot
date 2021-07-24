@@ -121,7 +121,7 @@ module.exports = {
 
 function play(channel, session) {
 	try {
-		const inVoice = client.inVoice.get(channel.guild.id)
+		const inVoice = channel.client.inVoice.get(channel.guild.id)
 		if (inVoice) { 
 			setTimeout(() => {
 				play(channel, session)
