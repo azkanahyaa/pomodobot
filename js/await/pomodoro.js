@@ -87,7 +87,7 @@ const countDown = (config, embed, end, isUseLB = false, isFirst = true) => {
 		channel.client.pomodoro.set(channel.id, { ...config, interval: counting, embed })
 		getPomodDB(channel.guild.id).then(data => {
 			const index = data.pomodoro.findIndex(item => item.channel === channel.id)
-			data.pomodoro[index] = { ...data.pomodoro[index], settings, embed: [ embed.channel.id, embed.id ], end: [ endTime, loop ] }
+			data.pomodoro[index] = { ...data.pomodoro[index], settings, embed: [ embed.guild.id, embed.channel.id, embed.id ], end: [ endTime, loop ] }
 			
 			updatePomodDB(channel.guild.id, data)
 		})
@@ -125,7 +125,7 @@ const countDown = (config, embed, end, isUseLB = false, isFirst = true) => {
 			channel.client.pomodoro.set(channel.id, { ...config })
 			getPomodDB(channel.guild.id).then(data => {
 				const index = data.pomodoro.findIndex(item => item.channel === channel.id)
-				data.pomodoro[index] = { ...data.pomodoro[index], embed: null, endTime: null }
+				data.pomodoro[index] = { ...data.pomodoro[index], embed: null, end: null }
 				
 				updatePomodDB(channel.guild.id, data)
 			})

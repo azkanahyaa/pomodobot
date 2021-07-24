@@ -176,7 +176,7 @@ async function countDown(config, embed, loop, isUseLB) {
 		channel.setName(mode)
 		embed.pin()
 	
-		const endTime = new Date().getTime() + duration * 1000 * 60
+		const e = new Date().getTime() + duration * 1000 * 60
 	
 		const counting = setInterval(() => {
 			channel.client.pomodoro.set(channel.id, { ...config, interval: counting, embed })

@@ -44,12 +44,12 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 		const channel = await newState.guild.channels.create(`🟡 Pomodoro #${pomodoro.length + 1}`, option)
 
 		newState.setChannel(channel)
-		pomodoro.push({ 
+		pomodData.pomodoro.push({ 
 			host: newState.id, 
 			channel: channel.id, 
 			settings, 
 			embed: null, 
-			endTime: null
+			end: null
 		})
 
 		client.pomodoro.set(channel.id, { host: newState.member.user, settings: settings, channel: channel })
