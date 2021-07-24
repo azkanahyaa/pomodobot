@@ -209,7 +209,7 @@ async function countDown(config, embed, loop, isUseLB) {
 				.setColor(color)
 				.setTitle(`${mode.split(' ')[1]} for`)
 				.setDescription(`> **${minutes} min ${seconds + 1} sec**`)
-				.setFooter(`Host: ${host.tag}`, host.user.displayAvatarURL())
+				.setFooter(`Host: ${host.tag}`, host.displayAvatarURL())
 			embed.edit(embedContent)
 	
 			if (timeLeft <= 0) {
