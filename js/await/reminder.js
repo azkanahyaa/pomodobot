@@ -141,7 +141,6 @@ async function awaitReminderMessage(msg, serverID) {
 			if (dmOn) reminder.dm = true
 
 			serverConfig.queue.push(reminder)
-			serverConfig.queue.sort((a, b) => a.time - b.time)
 
 			const now = new Date().getTime()
 			const newConfig = serverConfig
@@ -189,11 +188,15 @@ async function checkQueue(client, serverID, config, reminder) {
 		user.send(txt)
 	}
 
+	config.queue.filter(item => item.id !== reminder.id)
+
 	if (reminder.loop) {
-		config.queue.push({ ...reminder, time: reminder.time + reminder.loop })
-		config.queue.sort((a, b) => a.time - b.time)
+		const nextLoop = { ...reminder, time: reminder.time + reminder.loop }
+		config.queue.push(nextLoop)
+		setTimeout(() => {
+			checkQueue(client, serverID, config, nextLoop)
+		}, reminder.time - now)
 	}
-	config.queue.splice(0, 1)
 
 	const newConfig = config
 	updateRemindDB(serverID, newConfig)
