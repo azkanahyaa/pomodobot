@@ -15,12 +15,12 @@ module.exports = {
 			let todoData = await getTodoDB(msg.author.id)
 			const serverStickers = new Map(await getStickerDB(msg.guild.id))
 
-			const templateID = todoData.sticker
 
 			console.log(todoData)
-
-			if (!todoData.list) todoData = { list: [] }
 			if (todoData.list.length < 1) return msg.channel.send(`todo list kamu kosong nih. Silahkan gunakan \`${prefix} setup todo\` untuk mengatur list kamu`)
+
+			const templateID = todoData.sticker
+
 
 			todoStat = todoData.list.map(item => item[0])
 			todoDesc = todoData.list.map(item => item[1])
@@ -35,8 +35,9 @@ module.exports = {
 			}
 
 			if (args.length >= 2) {
+				const newStatus = args.shift()
 				const editIndex = args.map(num => parseInt(num) - 1)
-				const completionInput = argsOption.indexOf(args[0])
+				const completionInput = argsOption.indexOf(newStatus)
 
 				if (completionInput < 0) return msg.channel.send(' hanya dapat menggunakan `default`, `ongoing`, `done`, atau `fail`')
 

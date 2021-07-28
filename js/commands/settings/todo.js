@@ -1,5 +1,5 @@
 const { MessageEmbed } = require('discord.js')
-const { getTodoDB, updateTodoDB, getCompletionDB, updateCompletionDB, getTemplateDB } = require('../../db')
+const { getTodoDB, updateTodoDB, getTemplateDB } = require('../../db')
 
 let prefix = process.env.PREFIX
 const errChnl = process.env.ERRORLOG
@@ -7,6 +7,14 @@ const errChnl = process.env.ERRORLOG
 module.exports = {
 	name: 'todo',
 	execute(msg, args) {
+		const ynString = [ 'ya', 'tidak' ]
+		const filterAuthor = m => msg.author.id === m.author.id
+		const filterExit = m => m.content.toLowerCase() === 'exit'
+		const filterCondition = m => filterAuthor(m) && ( filterExit(m)  || ynString.some(b => b === m.content.toLowerCase()) )
+		const filterOneLine = m => filterAuthor(m) && ( filterExit(m)  || m.content.split('\n').length === 1 )
+		const filterNumber = m => filterAuthor(m) && ( filterExit(m)  || eval(m.content) !== isNaN )
+		const filterNumbers = m => filterAuthor(m) && ( filterExit(m)  || m.content.split(',').every(num => eval(num) !== isNaN) )
+		
 		try {
 			let userNickname = msg.member.nickname
 			if (userNickname === null) userNickname = msg.author.username
@@ -59,7 +67,7 @@ module.exports = {
 									.setColor('#73cfff')
 									.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
 									.setTitle(`DAILY TO DO LIST`)
-									.setDescription(`▫️ ${list.join('\n▫️ ')}`)
+									.setDescription(`▫️ ${todo.list.join('\n▫️ ')}`)
 									.setFooter(`gunakan ${prefix} todo untuk melihat kembali list`)
 								msg.channel.send(todoEmbed)
 								return
@@ -67,15 +75,6 @@ module.exports = {
 					})
 				})
 			})
-			
-			const ynString = [ 'ya', 'tidak' ]
-			const filterAuthor = m => msg.author.id === m.author.id
-			const filterExit = m => m.content.toLowerCase() === 'exit'
-			const filterCondition = m => filterAuthor(m) && ( filterExit(m)  || ynString.some(b => b === m.content.toLowerCase()) )
-			const filterOneLine = m => filterAuthor(m) && ( filterExit(m)  || m.content.split('\n').length === 1 )
-			const filterNumber = m => filterAuthor(m) && ( filterExit(m)  || eval(m.content) !== isNaN )
-			const filterNumbers = m => filterAuthor(m) && ( filterExit(m)  || m.content.split(',').every(num => eval(num) !== isNaN) )
-		
 	
 			async function addTodoList(msg, data) {
 				try {
@@ -208,7 +207,7 @@ module.exports = {
 				const todoEmbed = new MessageEmbed()
 					.setColor('#73cfff')
 					.setAuthor(`DAILY TO DO LIST`, msg.author.displayAvatarURL())
-					.setDescription(`> Masukkan Nomor List yang ingin Diedit:\n${todo.list.map((item, index) => `**${index + 1}.** ${item}`).join('\n')}\n`)
+					.setDescription(`> Masukkan Nomor List yang ingin Diedit:\n${todo.list.map((item, index) => `**${index + 1}.** ${item[1]}`).join('\n')}\n`)
 					.setFooter('ketik `exit` untuk membatalkan proses')
 			
 				const inputNum = await awaitSingleMessage(msg, filterNumber, todoEmbed)
@@ -256,6 +255,12 @@ module.exports = {
 		}
 		
 		async function setReset(msg, todo) {
+			const ynString = [ 'ya', 'tidak' ]
+			const filterAuthor = m => msg.author.id === m.author.id
+			const filterExit = m => m.content.toLowerCase() === 'exit'
+			const filterCondition = m => filterAuthor(m) && ( filterExit(m)  || ynString.some(b => b === m.content.toLowerCase()) )
+			const filterOneLine = m => filterAuthor(m) && ( filterExit(m)  || m.content.split('\n').length === 1 )
+
 			const qTxt1 = 'Apakah kamu ingin menggunakan reset otomatis to do list? **(ya/tidak)**'
 			const input1 = await awaitSingleMessage(msg, filterCondition, qTxt1)
 			const isAuto = input1.toLowerCase() === 'ya'

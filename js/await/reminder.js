@@ -4,6 +4,8 @@ const { checkDB, getRemindDB, updateRemindDB, getVipDB } = require('../db')
 async function awaitReminderMessage(msg, serverID) {
 	try {
 		let serverConfig = await getRemindDB(serverID)
+		let remindDC = msg.client.reminder.get(msg.author.id)
+		if (!remindDC) remindDC = []
 		const isAdded = serverConfig.queue.some(q => q.id === msg.id)
 
 		if (serverConfig.length < 1 || isAdded) return
@@ -18,22 +20,37 @@ async function awaitReminderMessage(msg, serverID) {
 						serverConfig.queue = serverConfig.queue.filter(item => {
 							return item.user !== msg.author.id && !item.loop
 						})
+						remindDC = remindDC.filter(item => {
+							if (item.loop) clearTimeout(item.count)
+							return !item.loop
+						})
 					} else	if (clearArg.length === 18) {
 						serverConfig.queue = serverConfig.queue.filter(item => {
 							return item.id !== clearArg
 						})
+
+						remindDC = remindDC.filter(item => {
+							if (item.id === clearArg) clearTimeout(item.count)
+							return item.id !== clearArg
+						})
 					} else if (clearArg === 'dm') {
 						serverConfig.queue = serverConfig.queue.map(item => {
-							if (item.id === msg.author.id) item.dm = false
+							if (item.user === msg.author.id) item.dm = false
 
 							return item
 						})
+						remindDC = remindDC.map(item => {
+							item.dm = false
+							return item
+						})
+
 						serverConfig.dmActive = serverConfig.dmActive.filter(user => {
 							return user !== msg.author.id
 						})
 					}
 					const newConfig = { ...serverConfig }
 					updateRemindDB(serverID, newConfig)
+					msg.client.reminder.set(msg.author.id, ...remindDC)
 					msg.react('<:aru_syedih:773951720597225483>')
 					return
 				}
@@ -41,7 +58,12 @@ async function awaitReminderMessage(msg, serverID) {
 				serverConfig.queue = serverConfig.queue.filter(item => {
 					return item.user !== msg.author.id
 				})
+				remindDC = remindDC.filter(item => {
+					if (item.id === clearArg) clearTimeout(item.count)
+					return item.id !== clearArg
+				})
 				const newConfig = { ...serverConfig }
+				msg.client.reminder.set(msg.author.id, ...remindDC)
 				updateRemindDB(serverID, newConfig)
 				msg.react('<:aru_syedih:773951720597225483>')
 				return
@@ -145,9 +167,11 @@ async function awaitReminderMessage(msg, serverID) {
 			const now = new Date().getTime()
 			const newConfig = serverConfig
 			updateRemindDB(serverID, newConfig)
-			setTimeout(() => {
+			const count = setTimeout(() => {
 				checkQueue(msg.client, msg.guild.id, newConfig, reminder)
 			}, reminder.time - now)
+			
+			msg.client.reminder.set(msg.author.id, [ ...remindDC, { ...reminder,count } ])
 			msg.react('<:aru_key_sip:766703898295271424>')
 		}
 	} catch(err) {
@@ -166,10 +190,17 @@ function checkReminder(client) {
 
 		for (const [id, config] of serversMap) {
 			for (let reminder of config.queue) {
-				if (reminder.time - now < 0) reminder = now + 1000
-				setTimeout(() => {
+			console.log(reminder)
+				if (reminder.length < 1) return
+				if (reminder.time - now < 0) reminder.time = now + 1000
+				const count = setTimeout(() => {
 					checkQueue(client, id, config, reminder)
 				}, reminder.time - now)
+
+				let remindDC = client.reminder.get(reminder.user)
+
+				if (!remindDC) remindDC = []
+				client.reminder.set(reminder.user, [ ...remindDC, { ...reminder,count } ])
 			}
 		}
 	})
@@ -177,6 +208,7 @@ function checkReminder(client) {
 
 async function checkQueue(client, serverID, config, reminder) {
 	const channel = await client.channels.fetch(config.remindChannel.id)
+	let remindDC = client.reminder.get(reminder.user)
 
 	const txt = `Hallo <@${reminder.user}>, sudah waktunya untuk **${reminder.desc}** nih <:aru_Woaah:766703813427593216>. Jangan lupa atur reminder untuk to do listmu selanjutnya ya.`
 
@@ -188,19 +220,22 @@ async function checkQueue(client, serverID, config, reminder) {
 		user.send(txt)
 	}
 
-	config.queue.filter(item => item.id !== reminder.id)
+	config.queue = config.queue.filter(item => item.id !== reminder.id)
+	remindDC = remindDC.filter(item => item.id !== reminder.id)
 
 	const now = new Date().getTime()
 
 	if (reminder.loop) {
 		const nextLoop = { ...reminder, time: reminder.time + reminder.loop }
 		config.queue.push(nextLoop)
-		setTimeout(() => {
+		const count = setTimeout(() => {
 			checkQueue(client, serverID, config, nextLoop)
-		}, reminder.time - now)
+		}, reminder.time + reminder.loop- now)
+		remindDC.push({ ...nextLoop, count })
 	}
 
 	const newConfig = config
+	client.reminder.set(reminder.user, [ ...remindDC ])
 	updateRemindDB(serverID, newConfig)
 }
 

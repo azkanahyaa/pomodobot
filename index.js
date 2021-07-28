@@ -11,6 +11,7 @@ client.commands = new Discord.Collection()
 client.processOn = new Discord.Collection()
 client.pomodoro = new Discord.Collection()
 client.inVoice = new Discord.Collection()
+client.reminder = new Discord.Collection()
 
 let prefix = process.env.PREFIX
 
@@ -35,12 +36,18 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 
 	if (!pomodData) return
 	if (newState.channelID === initialChnl) {		
-		const option = {
+		let option = {
 			type: 'voice',
 			parent: newState.channel.parent,
 			position: newState.channel.parent.children.length + 1,
 			bitrate: 16000
 		}
+		if (settings.silent === 3) option.permissionOverwrites = [
+			{
+				id: msg.guild.roles.everyone.id,
+				deny: ['SPEAK']
+			}
+		]
 		const channel = await newState.guild.channels.create(`🟡 Pomodoro #${pomodoro.length + 1}`, option)
 
 		newState.setChannel(channel)
@@ -62,11 +69,18 @@ client.on('voiceStateUpdate', async (oldState, newState) => {
 	const { channel } = config
 	const newSettings = config.settings
 
+console.log(newSettings.silent, oldState.selfMute, newState.selfMute)
 	if (oldState.selfMute !== newState.selfMute && newSettings.silent === 2) {
-		if (newState === true) {
-			newState.member.send('Hallo, yang lain sedang fokus di ' + channel.name + ' nih. Jangan sampai mengganggu yang lain ya <:aru_mau_itu:790277212275867698>')
+		if (oldState.selfMute === true && channel.name.startsWith('🔴 Fokus') ) {
+			config.embed.channel.send('Hallo <@' + newState.member +'>, yang lain sedang fokus di <#' + channel.id + '> nih. Jangan sampai mengganggu yang lain ya <:aru_mau_itu:790277212275867698>').then(m => {
+				setTimeout(() => {
+					m.delete()
+				}, 60000)
+			})
 		}
-	} else if (Array.from(oldState.channel.members).length < 1) {
+	} 
+	
+	if (Array.from(oldState.channel.members).length < 1) {
 		oldState.channel.delete().then(() => {
 			client.pomodoro.delete(oldState.channelID)
 			pomodData.pomodoro = pomodoro.filter(p => p.channel !== oldState.channelID)

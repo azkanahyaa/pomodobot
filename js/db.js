@@ -65,8 +65,9 @@ function getTodoDB(key) {
 	return new Promise((resolve, reject) => {
 		checkDB('todo').then(users => {
 			const todoMap = new Map(users)
-			if (users.length < 1) {
-				todo = {
+			const userData = todoMap.get(key)
+			if (users.length < 1 || !userData) {
+				const todo = {
 					user: key,
 					sticker: null,
 					template: null,
@@ -77,7 +78,7 @@ function getTodoDB(key) {
 				return
 			}
 
-			resolve(todoMap.get(key))
+			resolve(userData)
 		})
 	})
 }

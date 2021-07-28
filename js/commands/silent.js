@@ -4,10 +4,10 @@ let prefix = process.env.PREFIX
 
 module.exports = {
 	name: 'silent',
-	description: 'Mengatur level silent pada channel pomdoro\n`Level 1`: semua member bebas openmic saat fokus\n`Level 2`: member bisa openmic, namun akan mendapat mention dari bot\n`3. Level 3`: Member tidak bisa openmic saat fokus',
+	description: 'Mengatur level silent pada channel pomdoro\n`Level 1`: semua member bebas openmic saat fokus\n`Level 2`: member bisa openmic, namun akan mendapat mention dari bot\n`Level 3`: Member tidak bisa openmic saat fokus',
 	aliases: [ 'sl', 'silentlevel' ],
 	usages: [ `${prefix} sl <jumlah>` ],
-	examples: [ `${prefix} silent 2`, `${prefix} sl 0` ],
+	examples: [ `${prefix} silent 3`, `${prefix} sl 1` ],
   execute(msg, args) {
     try {
       const config = msg.client.pomodoro.get(msg.member.voice.channelID)
@@ -15,14 +15,18 @@ module.exports = {
       if (input < 1 || input > 3 || isNaN(input)) return msg.channel.send('input tidak valid')
       
       let { settings, host, channel } = config
+			const isPermit = channel.permissionsFor(msg.client.user.id).has('MANAGE_ROLES')
   
-      if (host.id !== msg.author.id) return msg.channel.send('Kamu bukan host dari channel ini')
+      if (host.id !== msg.author.id) return msg.channel.send('Kamu bukan host dari chan					nel ini')
+			if (!isPermit) return msg.channel.send('Aru butuh akses `MANAGE_ROLES` nih')
+
+			const everyone = msg.guild.roles.everyone.id
       
       settings.silent = input
       if (input === 1 || input === 2) {
-        channel.updateOverwrite('832505201771675669', { 'SPEAK': true })
-      } else if (input === 3) {
-        channel.updateOverwrite('832505201771675669', { 'SPEAK': false })
+        channel.updateOverwrite(everyone, { 'SPEAK': true })
+      } else if (input === 3 && channel.name.startsWith('🔴 Fokus')) {
+        channel.updateOverwrite(everyone, { 'SPEAK': false })
       }
       msg.client.pomodoro.set(channel.id, { ...config, settings })
       getPomodDB(channel.guild.id).then(data => {
@@ -31,7 +35,7 @@ module.exports = {
         
         updatePomodDB(channel.guild.id, data)
       })
-      msg.channel.send(`dilent level berhasil diubah ke ${input}`)
+      msg.channel.send(`Silent level berhasil diubah ke ${input}`)
 
     } catch(err) {
 			if (err.exit) {

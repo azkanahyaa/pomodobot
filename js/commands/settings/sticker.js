@@ -115,7 +115,7 @@ module.exports = {
 				const qTxt2 = `Masukkan nama dari template ini`
 				newTemplate.name = await awaitSingleMessage(msg, filterOneLine, qTxt2)
 			
-				const qTxt3 = `Masukkan nama dari template ini`
+				const qTxt3 = `Apakah Sticker ini ingin dijadikan sebagai Sticker To Do List VIP server?`
 				const inputVip = await awaitSingleMessage(msg, filterCondition, qTxt3)
 				newTemplate.vip = inputVip === 'ya'
 

@@ -1,7 +1,7 @@
 const { getStickerDB, getTodoDB, updateTodoDB, getVipDB } = require('../db.js')
 const { MessageEmbed } = require('discord.js')
 
-let prefix = process.en
+let prefix = process.env.PREFIX
 
 module.exports = {
 	name: 'sticker',
@@ -93,10 +93,10 @@ async function renderEmbed(msg, templates, index, embed, isUserVip) {
 		.setFooter(`${index + 1}/${templates.length} | ✅ : Gunakan Template | ❌ : batal`)
 
 	embed.edit(templateEmbed)
-	awaitTemplateReaction(msg, templates, index, embed)
+	awaitTemplateReaction(msg, templates, index, embed, isUserVip)
 }
 
-async function awaitTemplateReaction(msg, templates, index, embed) {
+async function awaitTemplateReaction(msg, templates, index, embed, isUserVip) {
 	let newIndex = index
 	const templatesReact = [ '⬅️', '➡️', '✅', '❌'  ]
 	const filterReaction = (reaction, user) => templatesReact.some(react => react === reaction.emoji.name) && user.id === msg.author.id

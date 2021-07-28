@@ -10,6 +10,14 @@ module.exports = {
 
 			if (!isDev) return
 
+			if (args[0] === 'pomodoro') {
+				const { getPomodDB, updatePomodDB } = require('../db')
+
+				getPomodDB(msg.guild.id).then(data => {
+					updatePomodDB(msg.guild.id, { ...data, pomodoro: [] })
+				})
+			}
+
 			const code = args.join(' ').split('```')[1]
 			msg.channel.send('**PERINGATAN!!**\n **Command ini hanya dapat digunakan untuk keperluan genting**. Ketik `yakin` untuk melanjutkan')
 			const filter = m => m.author.id === msg.author.id

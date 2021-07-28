@@ -8,6 +8,7 @@ async function backupPmd(client) {
 	for (const server of data) {
 		const pmdList = server[1].pomodoro
 		for (const pmd of pmdList) {
+			console.log(pmd)
 			let getDataFunct = [ 
 				addHostData(client, pmd.host),
 				addChannelData(client, pmd.channel),
@@ -28,6 +29,14 @@ async function backupPmd(client) {
 					pmdData.interval = countDown(pmdData, pmdData.embed, pmd.end)
 				}
 				client.pomodoro.set(pmd.channel, pmdData)
+			}).catch(err => {
+				console.log(err)
+				if (err.message === 'Unknown Channel') {
+					server[1].pomodoro = server[1].pomodoro.filter(d => {
+						d.channel === pmd.channel
+					})
+					updatePomodDB(server[0], server[1])
+				}
 			})
 		}
 	}
@@ -38,7 +47,7 @@ const addHostData = async (client, id) => {
 }
 
 const addChannelData = async (client, id) => {
-	return client.channels.fetch(id)
+	return await client.channels.fetch(id)
 }
 
 const addEmbedData = async (client, ids) => {
@@ -77,10 +86,20 @@ const countDown = (config, embed, end, isUseLB = false, isFirst = true) => {
 			}
 		}
 
+		endTime = new Date().getTime() + duration * 1000 * 60
+
 		channel.setName(mode)
 		embed.pin()
 
-		endTime = new Date().getTime() + duration * 1000 * 60
+		setTimeout(() => {
+			const everyone = channel.guild.roles.everyone.id
+			if (settings.silent === 3 && mode.startsWith('🔴 Fokus')) {
+				channel.updateOverwrite(everyone, { 'SPEAK': false })
+			} else {
+				channel.updateOverwrite(everyone, { 'SPEAK': true })
+			}
+		}, 5000)
+
 	}
 
 	const counting = setInterval(() => {
@@ -153,14 +172,16 @@ const play = (channel, session) => {
 	if (inVoice) { 
 		setTimeout(() => {
 			play(channel, session)
-		}, 5000)
+		}, 6000)
 		return
 	}
 	channel.join().then(c => {
 		channel.client.inVoice.set(channel.guild.id, true)
 		c.play(`./assets/sounds/aru-${session}.mp3`)
 		 .on('finish', () => {
-			 channel.leave()
+			 setTimeout(() => {
+				 channel.leave()
+			 }, 1000)
 			 channel.client.inVoice.set(channel.guild.id, false)
 		 })
 	})

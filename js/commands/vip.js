@@ -4,7 +4,7 @@ let prefix = process.env.PREFIX
 
 module.exports = {
 	name: 'vip',
-	description: 'Menampilkan Kecepatan Respon bot.',
+	description: 'Mengecek role vip server',
 	aliases: [ 'viproles', 'vr' ],
 	usage: [ `${prefix} vip` ],
   execute(msg, args) {

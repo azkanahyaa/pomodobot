@@ -2,12 +2,14 @@ const { getPomodDB, updatePomodDB } = require('../db')
 const { MessageEmbed } = require('discord.js')
 
 let prefix = process.env.PREFIX
+const errChnl = process.env.ERRORLOG
+
 
 module.exports = {
 	name: 'pomodoro',
 	description: 'Menampilkan pengaturan pomodoro di channel pengguna. Kamu hanya bisa menggunakan command ini saat berada di voice channel pomodoro',
 	aliases: [ 'pmd', 'pomod' ],
-	usages: [ `${prefix} pomodoro`, `${prefix} pomodoro start <focus> <short break> <loop> [long break] [break interval]` ],
+	usages: [ `${prefix} pomodoro`, `	${prefix} pmd start`, `${prefix} pomodoro start <focus> <short break> <loop> [long break] [break interval]`, `${prefix} pmd end` ],
 	examples: [ `${prefix} pomodoro`, `${prefix} pmd start`, `${prefix} pomod start 25 5 4`, `${prefix} pomod start 25 5 4 15 2` ],
   async execute(msg, args) {
 		try {
@@ -21,7 +23,7 @@ module.exports = {
 					clearInterval(config.interval)
 					config.embed.unpin()
 					msg.channel.send('Pomodoro dihentikan')
-					channel.client.pomodoro.set(channel.id, { ...config, interval: false })
+					config.channel.client.pomodoro.set(config.channel.id, { ...config, interval: false })
 					getPomodDB(msg.guild.id).then(data => {
 						const index = data.pomodoro.findIndex(item => item.channel === config.channel.id)
 						data.pomodoro[index] = { ...data.pomodoro[index], embed: null, end: null }
@@ -172,11 +174,22 @@ async function countDown(config, embed, loop, isUseLB) {
 				duration = lb
 			}
 		}
-	
+		
 		channel.setName(mode)
+
+		console.log(mode)
 		embed.pin()
 	
-		const e = new Date().getTime() + duration * 1000 * 60
+		const endTime = new Date().getTime() + duration * 1000 * 60
+
+		setTimeout(() => {	
+			const everyone = channel.guild.roles.everyone.id
+			if (settings.silent === 3 && mode.startsWith('🔴 Fokus')) {
+				channel.updateOverwrite(everyone, { 'SPEAK': false })
+			} else {
+				channel.updateOverwrite(everyone, { 'SPEAK': true })
+			}
+		}, 5000)
 	
 		const counting = setInterval(() => {
 			channel.client.pomodoro.set(channel.id, { ...config, interval: counting, embed })
@@ -217,7 +230,7 @@ async function countDown(config, embed, loop, isUseLB) {
 				let session = mode.split(' ')[1]
 				clearInterval(counting)
 				embed.delete()
-				channel.client.pomodoro.set(channel.id, { ...config })
+				channel.client.pomodoro.set(channel.id, { ...config, interval: null, embed: null })
 				getPomodDB(channel.guild.id).then(data => {
 					const index = data.pomodoro.findIndex(item => item.channel === channel.id)
 					data.pomodoro[index] = { ...data.pomodoro[index], embed: null, end: null }
