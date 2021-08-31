@@ -54,7 +54,7 @@ module.exports = {
 					.setTitle(`Pengaturan Default ${msg.guild.name}`)
 					.setDescription(`\`Initial channel: ${vChannel.name}\`\nMasukkan angka 1 - 7 sesuai pengaturan default yg ingin diubah:`)
 					.addField('Pengaturan Default', `
-					\`1️⃣. Fokus        :\` **${inputTemp[0]}** menit
+				\`1️⃣. Fokus        :\` **${inputTemp[0]}** menit
 					\`2️⃣. Jeda Pendek  :\` **${inputTemp[1]}** menit
 					\`3️⃣. Jeda Panjang :\` **${inputTemp[2]}** menit
 					\`4️⃣. Interval Jeda:\` **${inputTemp[3]}** putaran
