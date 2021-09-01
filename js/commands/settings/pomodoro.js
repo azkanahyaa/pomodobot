@@ -1,6 +1,5 @@
 const { updatePomodDB } = require('../../db')
 const { MessageEmbed } = require('discord.js')
-
 const errChnl = process.env.ERRORLOG
 
 module.exports = {
