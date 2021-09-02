@@ -1,8 +1,7 @@
 const { MessageEmbed } = require('discord.js')
 const { getTodoDB, updateTodoDB, getStickerDB } = require('../db')
 
-let prefix = process.env.PREFIX
-const errChnl = process.env.ERRORLOG
+const { prefix, errChnl } = require('../../config.js')
 
 module.exports = {
 	name: 'todo',

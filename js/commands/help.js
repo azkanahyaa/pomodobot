@@ -1,6 +1,6 @@
 const { MessageEmbed } = require('discord.js')
 
-let prefix = process.env.PREFIX
+const { prefix } = require('../../config.js')
 
 module.exports = {
 	name: 'help',

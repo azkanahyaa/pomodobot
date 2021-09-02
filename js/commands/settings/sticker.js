@@ -2,8 +2,7 @@ const { getStickerDB, updateStickerDB } = require('../../db')
 const { MessageEmbed } = require('discord.js')
 const { customAlphabet } = require('nanoid')
 
-let prefix = process.env.PREFIX
-const errChnl = process.env.ERRORLOG
+const { prefix, errChnl } = require('../../../config.js')
 
 module.exports = {
 	name: 'sticker',
@@ -261,6 +260,7 @@ async function awaitSingleMessage(msg, filter, questionTxt) {
 			return Promise.resolve(collected.first())
 		}).catch(err => {
 			questionMsg.edit('Proses dihentikan setelah 10 menit tidak aktif')
+			msg.client.processOn.set(msg.author.id, [ ...channels] )
 		})
 	
 	

@@ -13,7 +13,7 @@ client.pomodoro = new Discord.Collection()
 client.inVoice = new Discord.Collection()
 client.reminder = new Discord.Collection()
 
-let prefix = process.env.PREFIX
+const { prefix, token } = require('./config.js')
 
 const commandFiles = fs.readdirSync('./js/commands').filter(file => file.endsWith('.js'));
 
@@ -119,4 +119,4 @@ client.on('message', msg => {
 })
 
 onlineBot()
-client.login(process.env.TOKEN)
+client.login(token)

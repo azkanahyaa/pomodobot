@@ -8,7 +8,7 @@ for (const file of commandFiles) {
 	commands.set(command.name, command)
 }
 
-let prefix = process.env.PREFIX
+const { prefix } = require('../../config.js')
 
 module.exports = {
 	name: 'setup',
