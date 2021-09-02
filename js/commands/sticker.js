@@ -1,7 +1,7 @@
 const { getStickerDB, getTodoDB, updateTodoDB, getVipDB } = require('../db.js')
 const { MessageEmbed } = require('discord.js')
 
-let prefix = process.env.PREFIX
+const { prefix } = require('../../config.js')
 
 module.exports = {
 	name: 'sticker',

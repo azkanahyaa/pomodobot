@@ -1,4 +1,4 @@
-let prefix = process.env.PREFIX
+const { prefix } = require('../../config.js')
 
 module.exports = {
 	name: 'debug',

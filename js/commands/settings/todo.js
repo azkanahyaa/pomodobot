@@ -1,8 +1,7 @@
 const { MessageEmbed } = require('discord.js')
 const { getTodoDB, updateTodoDB, getTemplateDB } = require('../../db')
 
-let prefix = process.env.PREFIX
-const errChnl = process.env.ERRORLOG
+const { prefix, errChnl } = require('../../../config.js')
 
 module.exports = {
 	name: 'todo',
@@ -29,40 +28,37 @@ module.exports = {
 	
 			msg.channel.send(settingsEmbed).then(m => {
 				const embedReact = [ '🌀','🗑️','📝','🔄','✅', ]
-	
+				let reacted = false
 				for (const react of embedReact) {
+				  if (reacted) return
 					m.react(react)
 				}
 	
 				const filter = (r, user) => embedReact.some(react => react === r.emoji.name) && user.id == msg.author.id
 				m.awaitReactions(filter, {max: 1, idle: 60000}).then(collected => {
+					reacted = true
 					getTodoDB(msg.author.id).then(todo => {
 						switch (collected.first().emoji.name) {
 							case '🌀':
-								m.delete()
 								addTodoList(msg, todo)
 								return
 		
 							case '🗑️':
-								m.delete()
 								if (todo.list.length < 1) return msg.channel.send('Kamu belum mengatur to do list')
 								removeTodoList(msg, todo)
 								return
 		
 							case '📝': 
-								m.delete()
 								if (todo.list.length < 1) return msg.channel.send('Kamu belum mengatur to do list')
 								editTodoList(msg, todo)
 								return
 		
-							case '🔄':
-								m.delete()						
+							case '🔄':						
 								if (todo.list.length < 1) return msg.channel.send('Kamu belum mengatur to do list')
 								setReset(msg, todo)
 								return
 		
 							case '✅':
-								m.delete()
 								const todoEmbed = new MessageEmbed()			
 									.setColor('#73cfff')
 									.setAuthor(msg.author.tag, msg.author.displayAvatarURL())
@@ -79,7 +75,6 @@ module.exports = {
 			async function addTodoList(msg, data) {
 				try {
 					let todo = data
-					console.log(todo, 'p', data)
 	
 					const qTxt1 = `**<@${msg.author.id}>, silahkan Masukkan Todo List Kamu hari ini**. Gunakan \`enter\` (baris baru) untuk memasukkan lebih dari 1 list sekaligus\n\`\`\`\nContoh:\n**(04.00-07.00)** Rutinitas pagi\n**(07.00-11.00)** Sekolah Online\nIstirahat siang\nEkskul *Tata Boga*\n\`\`\``
 					const input1 = await awaitSingleMessage(msg, filterAuthor, qTxt1)
@@ -100,7 +95,7 @@ module.exports = {
 					updateTodoDB(msg.author.id, todo)
 				
 					if (isAddAgain) {
-						addTodoList(msg, newList)
+						addTodoList(msg, todo)
 						return
 					}
 				
@@ -219,7 +214,7 @@ module.exports = {
 					return
 				}
 			
-				const qTxt2 = `Masukkan to do baru untuk nomor ${inputNum}:\n\`${todo.list[itemNum]}\``
+				const qTxt2 = `Masukkan to do baru untuk nomor ${inputNum}:\n\`${todo.list[itemNum][1]}\``
 				const inputItem = await awaitSingleMessage(msg, filterOneLine, qTxt2)
 			
 				todo.list[itemNum][1] = inputItem
@@ -227,7 +222,7 @@ module.exports = {
 				const qTxt3 = new MessageEmbed()
 					.setColor('#73cfff')
 					.setAuthor("TODO LIST HARI INI:", msg.author.displayAvatarURL())
-					.setDescription(`> Apakah kamu ingin mengedit to do list yang lain? **(Ketik: Ya/Tidak)**\n▫️ ${newTodoData.join('\n▫️ ')}`)
+					.setDescription(`> Apakah kamu ingin mengedit to do list yang lain? **(Ketik: Ya/Tidak)**\n▫️ ${todo.list.map(item => item[1]).join('\n▫️ ')}`)
 			
 				const input3 = await awaitSingleMessage(msg, filterCondition, qTxt3)
 				const isAddAgain = input3.toLowerCase() === 'ya'
@@ -244,23 +239,17 @@ module.exports = {
 				if (err.exit) {
 					msg.channel.send(err.message)
 				} else {
-				console.log(err.stack)
-		const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
-				msg.client.guilds.fetch('810581510541410325').then(guild => {
-          const c = guild.channels.cache.get(errChnl)
-          c.send(errOutput)
-        })
-			}
+					console.log(err.stack)
+					const errOutput = `${err.message}\n\`\`\`\n${err.stack}\n\`\`\``
+					msg.client.guilds.fetch('810581510541410325').then(guild => {
+						const c = guild.channels.cache.get(errChnl)
+						c.send(errOutput)
+					})
+				}
 			}
 		}
 		
 		async function setReset(msg, todo) {
-			const ynString = [ 'ya', 'tidak' ]
-			const filterAuthor = m => msg.author.id === m.author.id
-			const filterExit = m => m.content.toLowerCase() === 'exit'
-			const filterCondition = m => filterAuthor(m) && ( filterExit(m)  || ynString.some(b => b === m.content.toLowerCase()) )
-			const filterOneLine = m => filterAuthor(m) && ( filterExit(m)  || m.content.split('\n').length === 1 )
-
 			const qTxt1 = 'Apakah kamu ingin menggunakan reset otomatis to do list? **(ya/tidak)**'
 			const input1 = await awaitSingleMessage(msg, filterCondition, qTxt1)
 			const isAuto = input1.toLowerCase() === 'ya'
@@ -288,35 +277,38 @@ module.exports = {
 		
 			if (resetTime - hours < 0) d.setDate(date + 1)
 			d.setHours(resetTime)
-			d.setMinutes(0)
+			d.setMinutes(28)
 
 			const now = new Date().getTime()
 			const end = d.getTime()
 
 			updateTodoDB(msg.author.id, todo)
-			msg.channel.send('Waktu reset berhasil diatur')
+			msg.channel.send('Waktu reset berhasil diatur pukul ' + todo.reset + ' WIB')
 			sendReset(end - now)
 
 			function sendReset(delay) {
 				setTimeout(() => {
 					let template = [ '🔸', '🔹', '✅', '📛' ]
 
-					const embedDesc = todo.list.map(item => {
-						if (item[0] !== 2) item[0] = 3
-						return `${template[item[0]]} ${item[1]}`
-					}).join('\n')
-			
-					const todoEmbed = new MessageEmbed()
-						.setColor('#73cfff')
-						.setTitle('> TO DO LIST DIRESET!')
-						.setDescription(embedDesc)
-						.setFooter('Jangan Lupa Untuk Mengatur To Do List Besok ya')
-			
-					const user = msg.author
-					user.send(todoEmbed)
-			
-					removeDBItem('todo', msg.author.id)
-					sendReset(1000 * 60 * 60 * 24)
+					getTodoDB(msg.author.id).then(data => {
+						const embedDesc = data.list.map(item => {
+							if (item[0] !== 2) item[0] = 3
+							return `${template[item[0]]} ${item[1]}`
+						}).join('\n')
+				
+						const todoEmbed = new MessageEmbed()
+							.setColor('#73cfff')
+							.setTitle('> TO DO LIST DIRESET!')
+							.setDescription(embedDesc)
+							.setFooter('Jangan Lupa Untuk Mengatur To Do List Besok ya')
+				
+						const user = msg.author
+						user.send(todoEmbed)
+				
+						updateTodoDB(msg.author.id, { ...data, list: [] })
+						sendReset(1000 * 60 * 60 * 24)
+						
+					})
 				}, delay)
 			}
 		}
@@ -332,6 +324,7 @@ module.exports = {
 					return Promise.resolve(collected.first())
 				}).catch(err => {
 					questionMsg.edit('Proses dihentikan setelah 10 menit tidak aktif')
+					msg.client.processOn.set(msg.author.id, [ ...channels] )
 				})
 			
 			

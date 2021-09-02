@@ -1,5 +1,5 @@
 const { updateVipDB } = require('../../db')
-let prefix = process.env.PREFIX
+const { prefix } = require('../../../config.js')
 
 module.exports = {
 	name: 'vip',

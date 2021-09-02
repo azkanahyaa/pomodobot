@@ -148,6 +148,7 @@ async function awaitSingleMessage(msg, filter, questionTxt) {
 			return Promise.resolve(collected.first())
 		}).catch(err => {
 			questionMsg.edit('Proses dihentikan setelah 10 menit tidak aktif')
+					msg.client.processOn.set(msg.author.id, [ ...channels] )
 		})
 	
 	
